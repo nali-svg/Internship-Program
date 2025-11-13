@@ -5,5 +5,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   // 添加公共路径配置，匹配你的 GitHub Pages 地址
+
+  
   base: '/Internship-Program/'    // 公共路径需与仓库名一致，对应站点地址：https://nali-svg.github.io/Internship-Program
 })
