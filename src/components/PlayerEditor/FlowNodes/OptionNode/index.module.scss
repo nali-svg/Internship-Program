@@ -1,0 +1,686 @@
+.card {
+    background: #f4fbf4;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    user-select: none;
+    transition: box-shadow 0.2s ease, max-height 0.3s ease, width 0.3s ease;
+    position: relative;
+    
+    &:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    &.selected {
+        border-color: #1890ff;
+        box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.3), 0 0 20px rgba(24, 144, 255, 0.2);
+        animation: selectedGlow 2s ease-in-out infinite alternate;
+    }
+    &.wide {
+        width: 480px;
+    }
+    
+    &.hasImage {
+        max-height: 600px;
+    }
+}
+
+/* 选中状态的蓝光动画 */
+@keyframes selectedGlow {
+    0% {
+        box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.3), 0 0 20px rgba(24, 144, 255, 0.2);
+    }
+    100% {
+        box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.5), 0 0 30px rgba(24, 144, 255, 0.4);
+    }
+}
+
+.header {
+    padding: 8px 12px;
+    background: #c8e6c9; // 绿色 - 选项节点
+    border-bottom: 1px solid #e9ecef;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: move;
+    user-select: none;
+    touch-action: none;
+    
+    &:active {
+        cursor: grabbing;
+    }
+}
+
+.titleRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+}
+
+.expandButton {
+    padding: 2px 8px;
+    border: 1px solid #d0d0d0;
+    background: white;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #666;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 24px;
+    
+    &:hover {
+        background: #f0f0f0;
+        border-color: #1890ff;
+        color: #1890ff;
+    }
+    
+    &:active {
+        transform: scale(0.95);
+    }
+}
+
+.checkboxLabel {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: #555;
+    cursor: pointer;
+    margin: 0;
+    
+    input[type="checkbox"] {
+        cursor: pointer;
+    }
+    
+    span {
+        user-select: none;
+    }
+}
+
+.tabs {
+    display: flex;
+    border-bottom: 1px solid #d9f2dc;
+    background: #e8f5e9;
+}
+
+.tab {
+    flex: 1;
+    padding: 8px 12px;
+    border: none;
+    background: transparent;
+    color: #3b6b44;
+    font-size: 13px;
+    cursor: default;
+    transition: color 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    position: relative;
+    min-height: 32px;
+    pointer-events: none;
+    
+    &.active {
+        color: #1f5a2a;
+        font-weight: 600;
+    }
+}
+
+.tabLabel {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    letter-spacing: 0.2px;
+}
+
+.inputTab {
+    position: relative;
+    justify-content: flex-start;
+    padding-left: 26px;
+}
+
+.inputTab::before {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid rgba(48, 122, 72, 0.85);
+    border-bottom: 2px solid rgba(48, 122, 72, 0.85);
+    transform: translateY(-50%) rotate(-45deg);
+    opacity: 0.85;
+}
+
+.outputTab {
+    justify-content: flex-end;
+    padding-right: 26px;
+}
+
+.content {
+    flex: initial;
+    padding: 12px;
+    background: white; // 白色背景
+}
+
+.section {
+    margin-bottom: 16px;
+    
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
+
+/* 叠加图片选项区 - 绿色左边框 */
+.overlaySection {
+    border-left: 3px solid #52c41a;
+    padding-left: 12px;
+    background: rgba(82, 196, 26, 0.02);
+    border-radius: 0 4px 4px 0;
+}
+
+.sectionTitle {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.field {
+    margin-bottom: 10px;
+    
+    label {
+        display: block;
+        margin-bottom: 4px;
+        font-size: 12px;
+        color: #555;
+        font-weight: 500;
+    }
+    
+    input[type="text"],
+    input[type="number"],
+    select,
+    textarea {
+        width: 100%;
+        padding: 6px 8px;
+        border: 1px solid #d9d9d9;
+        border-radius: 4px;
+        font-size: 13px;
+        transition: border-color 0.2s;
+        box-sizing: border-box;
+        
+        &:focus {
+            outline: none;
+            border-color: #1890ff;
+        }
+        
+        &.readonly {
+            background: #f5f5f5;
+            cursor: not-allowed;
+        }
+    }
+    
+    input[type="number"] {
+        width: auto;
+        min-width: 80px;
+    }
+    
+    textarea {
+        resize: vertical;
+        min-height: 60px;
+    }
+}
+
+.hint {
+    margin-top: 4px;
+    font-size: 11px;
+    color: #999;
+    font-style: italic;
+}
+
+.checkboxGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+    
+    label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        color: #555;
+        cursor: pointer;
+        
+        input[type="checkbox"] {
+            cursor: pointer;
+        }
+        
+        span {
+            user-select: none;
+        }
+    }
+}
+
+.inlineGroup {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.fileInput {
+    display: flex;
+    gap: 8px;
+    
+    input {
+        flex: 1;
+    }
+}
+
+.iconBtn {
+    padding: 6px 12px;
+    border: 1px solid #d9d9d9;
+    background: white;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+    
+    &:hover {
+        border-color: #1890ff;
+        color: #1890ff;
+    }
+}
+
+.addButton {
+    width: 100%;
+    padding: 8px 16px;
+    border: 1px dashed #d9d9d9;
+    background: white;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #666;
+    transition: all 0.2s;
+    margin-bottom: 8px;
+    
+    &:hover {
+        border-color: #1890ff;
+        color: #1890ff;
+        background: rgba(24, 144, 255, 0.02);
+    }
+}
+
+.itemList {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.listItem {
+    padding: 8px 12px;
+    background: #f5f5f5;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #666;
+}
+
+/* React Flow Handle 样式定制 */
+:global(.react-flow__handle) {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.card:hover :global(.react-flow__handle) {
+    opacity: 1;
+}
+
+/* 圆框样式的 Handle */
+.portHandle {
+    box-shadow: 0 1px 3px rgba(82, 196, 26, 0.35);
+    transition: transform 0.2s ease;
+    pointer-events: auto;
+    opacity: 1 !important;
+    border-radius: 4px;
+    
+    &:hover {
+        transform: scale(1.1);
+    }
+}
+
+.inputHandle {
+    position: absolute !important;
+    left: 16px !important;
+    right: auto !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+}
+
+.outputHandle {
+    position: absolute !important;
+    right: 16px !important;
+    left: auto !important;
+    top: 50% !important;
+    transform: translate(50%, -50%) !important;
+}
+
+/* 确保节点在 React Flow 中正确显示 */
+:global(.react-flow__node) {
+    cursor: move;
+}
+
+/* 节点包装容器 */
+.nodeWrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 条件标签容器 - 在卡片外部下方 */
+.conditionTags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 2px 0;
+    margin-top: 4px;
+    justify-content: flex-start;
+    width: 320px; // 与卡片宽度一致
+    max-width: 320px; // 确保不超过卡片宽度
+}
+
+/* 单个条件标签 */
+.conditionTag {
+    display: inline-block;
+    padding: 4px 12px;
+    background: #c8e6c9; // 绿色系
+    color: #2e7d32;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    border: 1px solid #81c784;
+    max-width: 100%; // 确保单个标签不会超出容器
+    box-sizing: border-box;
+}
+
+/* 效果标签容器 - 在条件标签下方 */
+.effectTags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 2px 0;
+    margin-top: 0px;
+    justify-content: flex-start;
+    width: 320px; // 与卡片宽度一致
+    max-width: 320px; // 确保不超过卡片宽度
+}
+
+/* 单个效果标签 */
+.effectTag {
+    display: inline-block;
+    padding: 4px 12px;
+    background: #ffcdd2; // 红色系
+    color: #c62828;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    border: 1px solid #ef5350;
+    max-width: 100%; // 确保单个标签不会超出容器
+    box-sizing: border-box;
+}
+
+/* 复杂表达式选项样式 */
+.expressionOption {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border-radius: 6px;
+}
+
+.hint {
+    font-size: 12px;
+    color: #999;
+    font-style: italic;
+}
+
+/* 条件列表样式 */
+.conditionList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.conditionItem {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: all 0.2s ease;
+    
+    &:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border-color: #d9d9d9;
+    }
+}
+
+.conditionRow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.conditionInput {
+    width: 100px;
+    padding: 8px 12px;
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    background: #fff;
+    
+    &:focus {
+        outline: none;
+        border-color: #1890ff;
+        box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+    }
+    
+    &:hover {
+        border-color: #40a9ff;
+    }
+}
+
+.conditionSelect {
+    width: 120px;
+    padding: 8px 12px;
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+    font-size: 12px;
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:focus {
+        outline: none;
+        border-color: #1890ff;
+        box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+    }
+    
+    &:hover {
+        border-color: #40a9ff;
+    }
+}
+
+.deleteConditionButton {
+    width: 100%;
+    padding: 8px 16px;
+    background: #fff;
+    border: 1px solid #ff4d4f;
+    border-radius: 6px;
+    color: #ff4d4f;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(255, 77, 79, 0.1);
+    
+    &:hover {
+        background: #ff4d4f;
+        color: white;
+        box-shadow: 0 4px 8px rgba(255, 77, 79, 0.3);
+        transform: translateY(-1px);
+    }
+    
+    &:active {
+        transform: scale(0.95);
+    }
+}
+
+/* 效果列表样式 */
+.effectList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.effectItem {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: all 0.2s ease;
+    
+    &:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border-color: #d9d9d9;
+    }
+}
+
+.effectRow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.effectInput {
+    width: 100px;
+    padding: 8px 12px;
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    background: #fff;
+    
+    &:focus {
+        outline: none;
+        border-color: #1890ff;
+        box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+    }
+    
+    &:hover {
+        border-color: #40a9ff;
+    }
+}
+
+.effectSelect {
+    width: 120px;
+    padding: 8px 12px;
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+    font-size: 12px;
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:focus {
+        outline: none;
+        border-color: #1890ff;
+        box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+    }
+    
+    &:hover {
+        border-color: #40a9ff;
+    }
+}
+
+.deleteEffectButton {
+    width: 100%;
+    padding: 8px 16px;
+    background: #fff;
+    border: 1px solid #ff4d4f;
+    border-radius: 6px;
+    color: #ff4d4f;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(255, 77, 79, 0.1);
+    
+    &:hover {
+        background: #ff4d4f;
+        color: white;
+        box-shadow: 0 4px 8px rgba(255, 77, 79, 0.3);
+        transform: translateY(-1px);
+    }
+    
+    &:active {
+        transform: scale(0.95);
+    }
+}
+
+/* 图片预览容器 */
+.imagePreviewContainer {
+    margin: 12px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #f5f5f5;
+    border-radius: 8px;
+    padding: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+.imagePreviewImage {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    
+    &:hover {
+        transform: scale(1.02);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    &:active {
+        transform: scale(0.98);
+    }
+}

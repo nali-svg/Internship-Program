@@ -1,0 +1,818 @@
+.card {
+    background: #eef6ff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    width: 320px;
+    max-height: 400px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    user-select: none;
+    transition: box-shadow 0.2s ease, max-height 0.3s ease;
+    position: relative;
+    
+    &:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    &.selected {
+        border-color: #1890ff;
+        box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.3), 0 0 20px rgba(24, 144, 255, 0.2);
+        animation: selectedGlow 2s ease-in-out infinite alternate;
+    }
+}
+
+.cardHasVideo {
+    max-height: 650px;
+}
+
+/* 选中状态的蓝光动画 */
+@keyframes selectedGlow {
+    0% {
+        box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.3), 0 0 20px rgba(24, 144, 255, 0.2);
+    }
+    100% {
+        box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.5), 0 0 30px rgba(24, 144, 255, 0.4);
+    }
+}
+
+.header {
+    padding: 8px 12px;
+    background: #bbdefb; // 蓝色 - 视频节点
+    border-bottom: 1px solid #e9ecef;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: move;
+    user-select: none;
+    touch-action: none;
+    
+    &:active {
+        cursor: grabbing;
+    }
+}
+
+.title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+}
+
+.checkboxLabel {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: #555;
+    cursor: pointer;
+    margin: 0;
+    
+    input[type="checkbox"] {
+        cursor: pointer;
+    }
+    
+    span {
+        user-select: none;
+    }
+}
+
+.tabs {
+    display: flex;
+    border-bottom: 1px solid #e0ecfb;
+    background: #e3f2fd;
+}
+
+.tab {
+    flex: 1;
+    padding: 8px 12px;
+    border: none;
+    background: transparent;
+    color: #446b9c;
+    font-size: 13px;
+    cursor: default;
+    transition: color 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    position: relative;
+    min-height: 32px;
+    
+    &.active {
+        color: #184c8c;
+        font-weight: 600;
+    }
+}
+
+.tabLabel {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    letter-spacing: 0.2px;
+}
+
+.inputTab {
+    position: relative;
+    justify-content: flex-start;
+    padding-left: 26px;
+}
+
+.inputTab::before {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid rgba(68, 107, 156, 0.85);
+    border-bottom: 2px solid rgba(68, 107, 156, 0.85);
+    transform-origin: center;
+    transform: translateY(-50%) rotate(-45deg);
+    opacity: 0.85;
+}
+
+.outputTab {
+    justify-content: flex-end;
+    padding-right: 26px;
+}
+
+.content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+    background: #ffffff;
+    
+    &::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    &::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 3px;
+        
+        &:hover {
+            background: #aaa;
+        }
+    }
+}
+
+.section {
+    margin-bottom: 16px;
+    
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
+
+.sectionTitle {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.field {
+    margin-bottom: 10px;
+    
+    label {
+        display: block;
+        margin-bottom: 4px;
+        font-size: 12px;
+        color: #555;
+        font-weight: 500;
+    }
+    
+    input[type="text"],
+    input[type="number"],
+    select,
+    textarea {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #d9d9d9;
+        border-radius: 4px;
+        font-size: 13px;
+        color: #333;
+        background: #fff;
+        transition: all 0.2s;
+        box-sizing: border-box;
+        
+        &:focus {
+            outline: none;
+            border-color: #40a9ff;
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+        }
+        
+        &::placeholder {
+            color: #bbb;
+        }
+    }
+    
+    textarea {
+        resize: vertical;
+        font-family: inherit;
+    }
+    
+    select {
+        cursor: pointer;
+    }
+}
+
+.readonly {
+    background: #f5f5f5 !important;
+    color: #999 !important;
+    cursor: not-allowed;
+}
+
+.fileInput {
+    display: flex;
+    gap: 8px;
+    
+    input {
+        flex: 1;
+    }
+}
+
+.iconBtn {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    background: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    
+    &:hover {
+        background: #f8f9fa;
+        border-color: #40a9ff;
+    }
+    
+    &:active {
+        background: #e9ecef;
+    }
+}
+
+.checkboxGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    
+    label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: #555;
+        cursor: pointer;
+        
+        input[type="checkbox"] {
+            cursor: pointer;
+        }
+        
+        span {
+            user-select: none;
+        }
+    }
+}
+
+.inlineField {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    
+    label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+        white-space: nowrap;
+    }
+}
+
+.smallInput {
+    width: 80px !important;
+    padding: 6px 10px !important;
+}
+
+.addBtn {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 12px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    background: #fff;
+    color: #333;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    
+    &:hover {
+        background: #f8f9fa;
+        border-color: #40a9ff;
+        color: #40a9ff;
+    }
+    
+    &:active {
+        background: #e9ecef;
+    }
+}
+
+/* React Flow Handle 样式定制 */
+:global(.react-flow__handle) {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.card:hover :global(.react-flow__handle) {
+    opacity: 1;
+}
+
+/* 端口圆框样式 */
+.portHandle {
+    box-shadow: 0 1px 3px rgba(24, 114, 224, 0.35);
+    transition: transform 0.2s ease;
+    pointer-events: auto;
+    opacity: 1 !important;
+    border-radius: 4px;
+    
+    &:hover {
+        transform: scale(1.1);
+    }
+}
+
+.inputHandle {
+    position: absolute !important;
+    left: 16px !important;
+    right: auto !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+}
+
+.outputHandle {
+    position: absolute !important;
+    right: 16px !important;
+    left: auto !important;
+    top: 50% !important;
+    transform: translate(50%, -50%) !important;
+}
+
+/* 确保节点在 React Flow 中正确显示 */
+:global(.react-flow__node) {
+    cursor: move;
+}
+
+/* 节点包装容器 */
+.nodeWrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 条件标签容器 - 在卡片外部下方 */
+.conditionTags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 4px 0;
+    margin-top: 4px;
+    justify-content: flex-start;
+    width: 320px; // 与卡片宽度一致
+    max-width: 320px; // 确保不超过卡片宽度
+}
+
+/* 单个条件标签 */
+.conditionTag {
+    display: inline-block;
+    padding: 4px 12px;
+    background: #c8e6c9; // 绿色系
+    color: #2e7d32;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    border: 1px solid #81c784;
+    max-width: 100%; // 确保单个标签不会超出容器
+    box-sizing: border-box;
+}
+
+.conditionTag.startTag {
+    background: #fff9c4;
+    color: #a07606;
+    border: 1px solid #fdd835;
+}
+
+/* 效果标签容器 - 在条件标签下方 */
+.effectTags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 4px 0;
+    margin-top: 0px;
+    justify-content: flex-start;
+    width: 320px; // 与卡片宽度一致
+    max-width: 320px; // 确保不超过卡片宽度
+}
+
+/* 单个效果标签 */
+.effectTag {
+    display: inline-block;
+    padding: 4px 12px;
+    background: #ffcdd2; // 红色系
+    color: #c62828;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    border: 1px solid #ef5350;
+    max-width: 100%; // 确保单个标签不会超出容器
+    box-sizing: border-box;
+}
+
+/* 条件/效果列表样式 */
+.effectList {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.effectItem {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: all 0.2s ease;
+    
+    &:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border-color: #d9d9d9;
+    }
+}
+
+.conditionItem {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: all 0.2s ease;
+    
+    &:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border-color: #d9d9d9;
+    }
+}
+
+.conditionInput {
+    width: 150px;
+    padding: 8px 12px;
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    background: #fff;
+    
+    &:focus {
+        outline: none;
+        border-color: #1890ff;
+        box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+    }
+    
+    &:hover {
+        border-color: #40a9ff;
+    }
+}
+
+.effectInput {
+    width: 80px;
+    padding: 8px 12px;
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    background: #fff;
+    
+    &:focus {
+        outline: none;
+        border-color: #1890ff;
+        box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+    }
+    
+    &:hover {
+        border-color: #40a9ff;
+    }
+}
+
+.effectSelect {
+    padding: 8px 12px;
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+    font-size: 12px;
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 120px;
+    
+    &:focus {
+        outline: none;
+        border-color: #1890ff;
+        box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+    }
+    
+    &:hover {
+        border-color: #40a9ff;
+    }
+}
+
+.removeButton {
+    width: 28px;
+    height: 28px;
+    border: 1px solid #ff4d4f;
+    background: #fff;
+    color: #ff4d4f;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(255, 77, 79, 0.1);
+    
+    &:hover {
+        background: #ff4d4f;
+        color: white;
+        box-shadow: 0 4px 8px rgba(255, 77, 79, 0.3);
+        transform: translateY(-1px);
+    }
+    
+    &:active {
+        transform: scale(0.95);
+    }
+}
+
+// 禁用状态样式
+input:disabled,
+select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #f5f5f5;
+}
+
+:global(.react-flow__node.selected) {
+    .card {
+        border-color: #1890ff;
+        box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+    }
+}
+
+/* 字幕列表样式 */
+.subtitleList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.subtitleItemWrapper {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: all 0.2s ease;
+    
+    &:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border-color: #d9d9d9;
+    }
+}
+
+.subtitleItemHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.deleteSubtitleBtn {
+    padding: 6px 16px;
+    background: #fff;
+    border: 1px solid #ff4d4f;
+    border-radius: 6px;
+    color: #ff4d4f;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+        background: #ff4d4f;
+        color: white;
+    }
+}
+
+.subtitleDetail {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #e8e8e8;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.subtitleTextarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+    font-size: 14px;
+    resize: vertical;
+    font-family: inherit;
+    
+    &:focus {
+        outline: none;
+        border-color: #1890ff;
+        box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+    }
+}
+
+/* 视频预览容器 - 顶部位置 */
+.videoPreviewContainer {
+    width: 100%;
+    overflow: hidden;
+    border-bottom: 1px solid #e0e0e0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    background-color: #000;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    &:hover {
+        opacity: 0.95;
+    }
+}
+
+.videoPreviewImage {
+    width: 100%;
+    height: auto;
+    display: block;
+    max-height: 200px;
+    object-fit: contain;
+    background-color: #000;
+    transition: opacity 0.2s ease;
+    
+    &:hover {
+        opacity: 0.9;
+    }
+}
+
+.videoPreviewVideo {
+    width: 100%;
+    max-height: 220px;
+    display: block;
+    object-fit: cover;
+    background-color: #000;
+    border: none;
+}
+
+.videoPreviewPlaceholder {
+    position: absolute;
+    inset: auto 12px 12px 12px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    pointer-events: none;
+    text-align: center;
+}
+
+/* 编辑按钮样式 */
+.editButton {
+    width: 100%;
+    background-color: #1890ff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 12px;
+    font-weight: 500;
+
+    &:hover {
+        background-color: #40a9ff;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(24, 144, 255, 0.3);
+    }
+
+    &:active {
+        transform: translateY(0);
+    }
+}
+
+/* 模态框内容区域样式 */
+.modalContent {
+    padding: 8px;
+    
+    .section {
+        margin-bottom: 20px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #f0f0f0;
+
+        &:last-child {
+            border-bottom: none;
+        }
+    }
+
+    .sectionTitle {
+        font-size: 15px;
+        font-weight: 600;
+        color: #333;
+        margin: 0 0 12px 0;
+    }
+
+    .field {
+        margin-bottom: 12px;
+
+        label {
+            display: block;
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 6px 10px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 13px;
+
+            &:focus {
+                border-color: #1890ff;
+                outline: none;
+                box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+            }
+
+            &:disabled {
+                background-color: #f5f5f5;
+                cursor: not-allowed;
+            }
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+    }
+
+    .checkboxLabel {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+        cursor: pointer;
+
+        input[type="checkbox"] {
+            width: auto;
+            cursor: pointer;
+        }
+
+        span {
+            font-size: 13px;
+            color: #333;
+        }
+    }
+
+    .checkboxGroup {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+}

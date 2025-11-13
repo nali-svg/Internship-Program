@@ -1,0 +1,1316 @@
+{
+    "data": [
+        {
+            "name": "体力",
+            "displayName": "",
+            "description": "",
+            "type": 0,
+            "persistenceType": 3,
+            "defaultValue": "",
+            "minValue": "0",
+            "maxValue": "100",
+            "usePlayerPrefs": false,
+            "playerPrefsDefaultValue": "",
+            "showAsProgress": false,
+            "iconPath": "",
+            "priority": 0,
+            "isHidden": false,
+            "order": 1,
+            "addValueForDay": 50,
+            "addValueForWeek": 0,
+            "addValueForMonth": 0,
+            "newUserAddValueForDay": [
+                0
+            ],
+            "newUserAddValueForWeek": [
+                0
+            ],
+            "newUserAddValueForMonth": [
+                0
+            ],
+            "isResetDaily": false,
+            "resetDailyValue": 0,
+            "isResident": true
+        },
+        {
+            "name": "战力",
+            "displayName": "",
+            "description": "",
+            "type": 0,
+            "persistenceType": 3,
+            "defaultValue": "",
+            "minValue": "0",
+            "maxValue": "100",
+            "usePlayerPrefs": false,
+            "playerPrefsDefaultValue": "",
+            "showAsProgress": false,
+            "iconPath": "",
+            "priority": 0,
+            "isHidden": false,
+            "order": 2,
+            "addValueForDay": 0,
+            "addValueForWeek": 0,
+            "addValueForMonth": 0,
+            "newUserAddValueForDay": [
+                0
+            ],
+            "newUserAddValueForWeek": [
+                0
+            ],
+            "newUserAddValueForMonth": [
+                0
+            ],
+            "isResetDaily": false,
+            "resetDailyValue": 0,
+            "isResident": false
+        },
+        {
+            "name": "战斗潜力",
+            "displayName": "",
+            "description": "",
+            "type": 0,
+            "persistenceType": 3,
+            "defaultValue": "",
+            "minValue": "0",
+            "maxValue": "100",
+            "usePlayerPrefs": false,
+            "playerPrefsDefaultValue": "",
+            "showAsProgress": false,
+            "iconPath": "",
+            "priority": 0,
+            "isHidden": false,
+            "order": 3,
+            "addValueForDay": 0,
+            "addValueForWeek": 0,
+            "addValueForMonth": 0,
+            "newUserAddValueForDay": [
+                0
+            ],
+            "newUserAddValueForWeek": [
+                0
+            ],
+            "newUserAddValueForMonth": [
+                0
+            ],
+            "isResetDaily": false,
+            "resetDailyValue": 0,
+            "isResident": false
+        },
+        {
+            "name": "魔王等级",
+            "displayName": "",
+            "description": "",
+            "type": 0,
+            "persistenceType": 3,
+            "defaultValue": "",
+            "minValue": "0",
+            "maxValue": "100",
+            "usePlayerPrefs": false,
+            "playerPrefsDefaultValue": "",
+            "showAsProgress": false,
+            "iconPath": "",
+            "priority": 0,
+            "isHidden": false,
+            "order": 4,
+            "addValueForDay": 0,
+            "addValueForWeek": 0,
+            "addValueForMonth": 0,
+            "newUserAddValueForDay": [
+                0
+            ],
+            "newUserAddValueForWeek": [
+                0
+            ],
+            "newUserAddValueForMonth": [
+                0
+            ],
+            "isResetDaily": false,
+            "resetDailyValue": 0,
+            "isResident": false
+        },
+        {
+            "name": "灵石",
+            "displayName": "",
+            "description": "",
+            "type": 0,
+            "persistenceType": 3,
+            "defaultValue": "",
+            "minValue": "0",
+            "maxValue": "100",
+            "usePlayerPrefs": false,
+            "playerPrefsDefaultValue": "",
+            "showAsProgress": false,
+            "iconPath": "",
+            "priority": 0,
+            "isHidden": false,
+            "order": 5,
+            "addValueForDay": 0,
+            "addValueForWeek": 0,
+            "addValueForMonth": 0,
+            "newUserAddValueForDay": [
+                0
+            ],
+            "newUserAddValueForWeek": [
+                0
+            ],
+            "newUserAddValueForMonth": [
+                0
+            ],
+            "isResetDaily": false,
+            "resetDailyValue": 0,
+            "isResident": false
+        },
+        {
+            "name": "金币",
+            "displayName": "",
+            "description": "",
+            "type": 0,
+            "persistenceType": 3,
+            "defaultValue": "",
+            "minValue": "0",
+            "maxValue": "100",
+            "usePlayerPrefs": false,
+            "playerPrefsDefaultValue": "",
+            "showAsProgress": false,
+            "iconPath": "",
+            "priority": 0,
+            "isHidden": false,
+            "order": 6,
+            "addValueForDay": 0,
+            "addValueForWeek": 0,
+            "addValueForMonth": 0,
+            "newUserAddValueForDay": [
+                0
+            ],
+            "newUserAddValueForWeek": [
+                0
+            ],
+            "newUserAddValueForMonth": [
+                0
+            ],
+            "isResetDaily": false,
+            "resetDailyValue": 0,
+            "isResident": false
+        },
+        {
+            "name": "钻石",
+            "displayName": "",
+            "description": "",
+            "type": 0,
+            "persistenceType": 3,
+            "defaultValue": "",
+            "minValue": "0",
+            "maxValue": "100",
+            "usePlayerPrefs": false,
+            "playerPrefsDefaultValue": "",
+            "showAsProgress": false,
+            "iconPath": "",
+            "priority": 0,
+            "isHidden": false,
+            "order": 7,
+            "addValueForDay": 0,
+            "addValueForWeek": 0,
+            "addValueForMonth": 0,
+            "newUserAddValueForDay": [
+                0
+            ],
+            "newUserAddValueForWeek": [
+                0
+            ],
+            "newUserAddValueForMonth": [
+                0
+            ],
+            "isResetDaily": false,
+            "resetDailyValue": 0,
+            "isResident": false
+        },
+        {
+            "name": "实战经验",
+            "displayName": "",
+            "description": "",
+            "type": 0,
+            "persistenceType": 3,
+            "defaultValue": "",
+            "minValue": "0",
+            "maxValue": "100",
+            "usePlayerPrefs": false,
+            "playerPrefsDefaultValue": "",
+            "showAsProgress": false,
+            "iconPath": "",
+            "priority": 0,
+            "isHidden": false,
+            "order": 8,
+            "addValueForDay": 0,
+            "addValueForWeek": 0,
+            "addValueForMonth": 0,
+            "newUserAddValueForDay": [
+                0
+            ],
+            "newUserAddValueForWeek": [
+                0
+            ],
+            "newUserAddValueForMonth": [
+                0
+            ],
+            "isResetDaily": false,
+            "resetDailyValue": 0,
+            "isResident": false
+        },
+        {
+            "name": "死亡次数",
+            "displayName": "",
+            "description": "",
+            "type": 0,
+            "persistenceType": 3,
+            "defaultValue": "",
+            "minValue": "0",
+            "maxValue": "100",
+            "usePlayerPrefs": false,
+            "playerPrefsDefaultValue": "",
+            "showAsProgress": false,
+            "iconPath": "",
+            "priority": 0,
+            "isHidden": false,
+            "order": 9,
+            "addValueForDay": 0,
+            "addValueForWeek": 0,
+            "addValueForMonth": 0,
+            "newUserAddValueForDay": [
+                0
+            ],
+            "newUserAddValueForWeek": [
+                0
+            ],
+            "newUserAddValueForMonth": [
+                0
+            ],
+            "isResetDaily": false,
+            "resetDailyValue": 0,
+            "isResident": false
+        },
+        {
+            "name": "魅力",
+            "displayName": "",
+            "description": "",
+            "type": 0,
+            "persistenceType": 3,
+            "defaultValue": "",
+            "minValue": "0",
+            "maxValue": "100",
+            "usePlayerPrefs": false,
+            "playerPrefsDefaultValue": "",
+            "showAsProgress": false,
+            "iconPath": "",
+            "priority": 0,
+            "isHidden": false,
+            "order": 10,
+            "addValueForDay": 0,
+            "addValueForWeek": 0,
+            "addValueForMonth": 0,
+            "newUserAddValueForDay": [
+                0
+            ],
+            "newUserAddValueForWeek": [
+                0
+            ],
+            "newUserAddValueForMonth": [
+                0
+            ],
+            "isResetDaily": false,
+            "resetDailyValue": 0,
+            "isResident": false
+        },
+        {
+            "name": "智力",
+            "displayName": "",
+            "description": "",
+            "type": 0,
+            "persistenceType": 3,
+            "defaultValue": "",
+            "minValue": "0",
+            "maxValue": "100",
+            "usePlayerPrefs": false,
+            "playerPrefsDefaultValue": "",
+            "showAsProgress": false,
+            "iconPath": "",
+            "priority": 0,
+            "isHidden": false,
+            "order": 11,
+            "addValueForDay": 0,
+            "addValueForWeek": 0,
+            "addValueForMonth": 0,
+            "newUserAddValueForDay": [
+                0
+            ],
+            "newUserAddValueForWeek": [
+                0
+            ],
+            "newUserAddValueForMonth": [
+                0
+            ],
+            "isResetDaily": false,
+            "resetDailyValue": 0,
+            "isResident": false
+        },
+        {
+            "name": "运气",
+            "displayName": "",
+            "description": "",
+            "type": 0,
+            "persistenceType": 3,
+            "defaultValue": "",
+            "minValue": "0",
+            "maxValue": "100",
+            "usePlayerPrefs": false,
+            "playerPrefsDefaultValue": "",
+            "showAsProgress": false,
+            "iconPath": "",
+            "priority": 0,
+            "isHidden": false,
+            "order": 12,
+            "addValueForDay": 0,
+            "addValueForWeek": 0,
+            "addValueForMonth": 0,
+            "newUserAddValueForDay": [
+                0
+            ],
+            "newUserAddValueForWeek": [
+                0
+            ],
+            "newUserAddValueForMonth": [
+                0
+            ],
+            "isResetDaily": false,
+            "resetDailyValue": 0,
+            "isResident": false
+        },
+        {
+            "name": "洞察",
+            "displayName": "",
+            "description": "",
+            "type": 0,
+            "persistenceType": 3,
+            "defaultValue": "",
+            "minValue": "0",
+            "maxValue": "100",
+            "usePlayerPrefs": false,
+            "playerPrefsDefaultValue": "",
+            "showAsProgress": false,
+            "iconPath": "",
+            "priority": 0,
+            "isHidden": false,
+            "order": 13,
+            "addValueForDay": 0,
+            "addValueForWeek": 0,
+            "addValueForMonth": 0,
+            "newUserAddValueForDay": [
+                0
+            ],
+            "newUserAddValueForWeek": [
+                0
+            ],
+            "newUserAddValueForMonth": [
+                0
+            ],
+            "isResetDaily": false,
+            "resetDailyValue": 0,
+            "isResident": false
+        },
+        {
+            "name": "力量",
+            "displayName": "",
+            "description": "",
+            "type": 0,
+            "persistenceType": 3,
+            "defaultValue": "",
+            "minValue": "0",
+            "maxValue": "100",
+            "usePlayerPrefs": false,
+            "playerPrefsDefaultValue": "",
+            "showAsProgress": false,
+            "iconPath": "",
+            "priority": 0,
+            "isHidden": false,
+            "order": 14,
+            "addValueForDay": 0,
+            "addValueForWeek": 0,
+            "addValueForMonth": 0,
+            "newUserAddValueForDay": [
+                0
+            ],
+            "newUserAddValueForWeek": [
+                0
+            ],
+            "newUserAddValueForMonth": [
+                0
+            ],
+            "isResetDaily": false,
+            "resetDailyValue": 0,
+            "isResident": false
+        },
+        {
+            "name": "魔力",
+            "displayName": "",
+            "description": "",
+            "type": 0,
+            "persistenceType": 3,
+            "defaultValue": "",
+            "minValue": "0",
+            "maxValue": "100",
+            "usePlayerPrefs": false,
+            "playerPrefsDefaultValue": "",
+            "showAsProgress": false,
+            "iconPath": "",
+            "priority": 0,
+            "isHidden": false,
+            "order": 15,
+            "addValueForDay": 0,
+            "addValueForWeek": 0,
+            "addValueForMonth": 0,
+            "newUserAddValueForDay": [
+                0
+            ],
+            "newUserAddValueForWeek": [
+                0
+            ],
+            "newUserAddValueForMonth": [
+                0
+            ],
+            "isResetDaily": false,
+            "resetDailyValue": 0,
+            "isResident": false
+        },
+        {
+            "name": "体质",
+            "displayName": "",
+            "description": "",
+            "type": 0,
+            "persistenceType": 3,
+            "defaultValue": "",
+            "minValue": "0",
+            "maxValue": "100",
+            "usePlayerPrefs": false,
+            "playerPrefsDefaultValue": "",
+            "showAsProgress": false,
+            "iconPath": "",
+            "priority": 0,
+            "isHidden": false,
+            "order": 16,
+            "addValueForDay": 0,
+            "addValueForWeek": 0,
+            "addValueForMonth": 0,
+            "newUserAddValueForDay": [
+                0
+            ],
+            "newUserAddValueForWeek": [
+                0
+            ],
+            "newUserAddValueForMonth": [
+                0
+            ],
+            "isResetDaily": false,
+            "resetDailyValue": 0,
+            "isResident": false
+        },
+        {
+            "name": "防御力",
+            "displayName": "",
+            "description": "",
+            "type": 0,
+            "persistenceType": 3,
+            "defaultValue": "",
+            "minValue": "0",
+            "maxValue": "100",
+            "usePlayerPrefs": false,
+            "playerPrefsDefaultValue": "",
+            "showAsProgress": false,
+            "iconPath": "",
+            "priority": 0,
+            "isHidden": false,
+            "order": 17,
+            "addValueForDay": 0,
+            "addValueForWeek": 0,
+            "addValueForMonth": 0,
+            "newUserAddValueForDay": [
+                0
+            ],
+            "newUserAddValueForWeek": [
+                0
+            ],
+            "newUserAddValueForMonth": [
+                0
+            ],
+            "isResetDaily": false,
+            "resetDailyValue": 0,
+            "isResident": false
+        },
+        {
+            "name": "速度",
+            "displayName": "",
+            "description": "",
+            "type": 0,
+            "persistenceType": 3,
+            "defaultValue": "",
+            "minValue": "0",
+            "maxValue": "100",
+            "usePlayerPrefs": false,
+            "playerPrefsDefaultValue": "",
+            "showAsProgress": false,
+            "iconPath": "",
+            "priority": 0,
+            "isHidden": false,
+            "order": 18,
+            "addValueForDay": 0,
+            "addValueForWeek": 0,
+            "addValueForMonth": 0,
+            "newUserAddValueForDay": [
+                0
+            ],
+            "newUserAddValueForWeek": [
+                0
+            ],
+            "newUserAddValueForMonth": [
+                0
+            ],
+            "isResetDaily": false,
+            "resetDailyValue": 0,
+            "isResident": false
+        },
+        {
+            "name": "精神力",
+            "displayName": "",
+            "description": "",
+            "type": 0,
+            "persistenceType": 3,
+            "defaultValue": "",
+            "minValue": "0",
+            "maxValue": "100",
+            "usePlayerPrefs": false,
+            "playerPrefsDefaultValue": "",
+            "showAsProgress": false,
+            "iconPath": "",
+            "priority": 0,
+            "isHidden": false,
+            "order": 19,
+            "addValueForDay": 0,
+            "addValueForWeek": 0,
+            "addValueForMonth": 0,
+            "newUserAddValueForDay": [
+                0
+            ],
+            "newUserAddValueForWeek": [
+                0
+            ],
+            "newUserAddValueForMonth": [
+                0
+            ],
+            "isResetDaily": false,
+            "resetDailyValue": 0,
+            "isResident": false
+        },
+        {
+            "name": "光元素能力",
+            "displayName": "",
+            "description": "",
+            "type": 0,
+            "persistenceType": 3,
+            "defaultValue": "",
+            "minValue": "0",
+            "maxValue": "100",
+            "usePlayerPrefs": false,
+            "playerPrefsDefaultValue": "",
+            "showAsProgress": false,
+            "iconPath": "",
+            "priority": 0,
+            "isHidden": false,
+            "order": 20,
+            "addValueForDay": 0,
+            "addValueForWeek": 0,
+            "addValueForMonth": 0,
+            "newUserAddValueForDay": [
+                0
+            ],
+            "newUserAddValueForWeek": [
+                0
+            ],
+            "newUserAddValueForMonth": [
+                0
+            ],
+            "isResetDaily": false,
+            "resetDailyValue": 0,
+            "isResident": false
+        },
+        {
+            "name": "火元素能力",
+            "displayName": "",
+            "description": "",
+            "type": 0,
+            "persistenceType": 3,
+            "defaultValue": "",
+            "minValue": "0",
+            "maxValue": "100",
+            "usePlayerPrefs": false,
+            "playerPrefsDefaultValue": "",
+            "showAsProgress": false,
+            "iconPath": "",
+            "priority": 0,
+            "isHidden": false,
+            "order": 21,
+            "addValueForDay": 0,
+            "addValueForWeek": 0,
+            "addValueForMonth": 0,
+            "newUserAddValueForDay": [
+                0
+            ],
+            "newUserAddValueForWeek": [
+                0
+            ],
+            "newUserAddValueForMonth": [
+                0
+            ],
+            "isResetDaily": false,
+            "resetDailyValue": 0,
+            "isResident": false
+        },
+        {
+            "name": "冰元素能力",
+            "displayName": "",
+            "description": "",
+            "type": 0,
+            "persistenceType": 3,
+            "defaultValue": "",
+            "minValue": "0",
+            "maxValue": "100",
+            "usePlayerPrefs": false,
+            "playerPrefsDefaultValue": "",
+            "showAsProgress": false,
+            "iconPath": "",
+            "priority": 0,
+            "isHidden": false,
+            "order": 22,
+            "addValueForDay": 0,
+            "addValueForWeek": 0,
+            "addValueForMonth": 0,
+            "newUserAddValueForDay": [
+                0
+            ],
+            "newUserAddValueForWeek": [
+                0
+            ],
+            "newUserAddValueForMonth": [
+                0
+            ],
+            "isResetDaily": false,
+            "resetDailyValue": 0,
+            "isResident": false
+        },
+        {
+            "name": "水元素能力",
+            "displayName": "",
+            "description": "",
+            "type": 0,
+            "persistenceType": 3,
+            "defaultValue": "",
+            "minValue": "0",
+            "maxValue": "100",
+            "usePlayerPrefs": false,
+            "playerPrefsDefaultValue": "",
+            "showAsProgress": false,
+            "iconPath": "",
+            "priority": 0,
+            "isHidden": false,
+            "order": 23,
+            "addValueForDay": 0,
+            "addValueForWeek": 0,
+            "addValueForMonth": 0,
+            "newUserAddValueForDay": [
+                0
+            ],
+            "newUserAddValueForWeek": [
+                0
+            ],
+            "newUserAddValueForMonth": [
+                0
+            ],
+            "isResetDaily": false,
+            "resetDailyValue": 0,
+            "isResident": false
+        },
+        {
+            "name": "雷元素能力",
+            "displayName": "",
+            "description": "",
+            "type": 0,
+            "persistenceType": 3,
+            "defaultValue": "",
+            "minValue": "0",
+            "maxValue": "100",
+            "usePlayerPrefs": false,
+            "playerPrefsDefaultValue": "",
+            "showAsProgress": false,
+            "iconPath": "",
+            "priority": 0,
+            "isHidden": false,
+            "order": 24,
+            "addValueForDay": 0,
+            "addValueForWeek": 0,
+            "addValueForMonth": 0,
+            "newUserAddValueForDay": [
+                0
+            ],
+            "newUserAddValueForWeek": [
+                0
+            ],
+            "newUserAddValueForMonth": [
+                0
+            ],
+            "isResetDaily": false,
+            "resetDailyValue": 0,
+            "isResident": false
+        },
+        {
+            "name": "土元素能力",
+            "displayName": "",
+            "description": "",
+            "type": 0,
+            "persistenceType": 3,
+            "defaultValue": "",
+            "minValue": "0",
+            "maxValue": "100",
+            "usePlayerPrefs": false,
+            "playerPrefsDefaultValue": "",
+            "showAsProgress": false,
+            "iconPath": "",
+            "priority": 0,
+            "isHidden": false,
+            "order": 25,
+            "addValueForDay": 0,
+            "addValueForWeek": 0,
+            "addValueForMonth": 0,
+            "newUserAddValueForDay": [
+                0
+            ],
+            "newUserAddValueForWeek": [
+                0
+            ],
+            "newUserAddValueForMonth": [
+                0
+            ],
+            "isResetDaily": false,
+            "resetDailyValue": 0,
+            "isResident": false
+        },
+        {
+            "name": "木元素能力",
+            "displayName": "",
+            "description": "",
+            "type": 0,
+            "persistenceType": 3,
+            "defaultValue": "",
+            "minValue": "0",
+            "maxValue": "100",
+            "usePlayerPrefs": false,
+            "playerPrefsDefaultValue": "",
+            "showAsProgress": false,
+            "iconPath": "",
+            "priority": 0,
+            "isHidden": false,
+            "order": 26,
+            "addValueForDay": 0,
+            "addValueForWeek": 0,
+            "addValueForMonth": 0,
+            "newUserAddValueForDay": [
+                0
+            ],
+            "newUserAddValueForWeek": [
+                0
+            ],
+            "newUserAddValueForMonth": [
+                0
+            ],
+            "isResetDaily": false,
+            "resetDailyValue": 0,
+            "isResident": false
+        },
+        {
+            "name": "毒元素能力",
+            "displayName": "",
+            "description": "",
+            "type": 0,
+            "persistenceType": 3,
+            "defaultValue": "",
+            "minValue": "0",
+            "maxValue": "100",
+            "usePlayerPrefs": false,
+            "playerPrefsDefaultValue": "",
+            "showAsProgress": false,
+            "iconPath": "",
+            "priority": 0,
+            "isHidden": false,
+            "order": 27,
+            "addValueForDay": 0,
+            "addValueForWeek": 0,
+            "addValueForMonth": 0,
+            "newUserAddValueForDay": [
+                0
+            ],
+            "newUserAddValueForWeek": [
+                0
+            ],
+            "newUserAddValueForMonth": [
+                0
+            ],
+            "isResetDaily": false,
+            "resetDailyValue": 0,
+            "isResident": false
+        },
+        {
+            "name": "暗元素能力",
+            "displayName": "",
+            "description": "",
+            "type": 0,
+            "persistenceType": 3,
+            "defaultValue": "",
+            "minValue": "0",
+            "maxValue": "100",
+            "usePlayerPrefs": false,
+            "playerPrefsDefaultValue": "",
+            "showAsProgress": false,
+            "iconPath": "",
+            "priority": 0,
+            "isHidden": false,
+            "order": 28,
+            "addValueForDay": 0,
+            "addValueForWeek": 0,
+            "addValueForMonth": 0,
+            "newUserAddValueForDay": [
+                0
+            ],
+            "newUserAddValueForWeek": [
+                0
+            ],
+            "newUserAddValueForMonth": [
+                0
+            ],
+            "isResetDaily": false,
+            "resetDailyValue": 0,
+            "isResident": false
+        },
+        {
+            "name": "风元素能力",
+            "displayName": "",
+            "description": "",
+            "type": 0,
+            "persistenceType": 3,
+            "defaultValue": "",
+            "minValue": "0",
+            "maxValue": "100",
+            "usePlayerPrefs": false,
+            "playerPrefsDefaultValue": "",
+            "showAsProgress": false,
+            "iconPath": "",
+            "priority": 0,
+            "isHidden": false,
+            "order": 29,
+            "addValueForDay": 0,
+            "addValueForWeek": 0,
+            "addValueForMonth": 0,
+            "newUserAddValueForDay": [
+                0
+            ],
+            "newUserAddValueForWeek": [
+                0
+            ],
+            "newUserAddValueForMonth": [
+                0
+            ],
+            "isResetDaily": false,
+            "resetDailyValue": 0,
+            "isResident": false
+        },
+        {
+            "name": "光抗",
+            "displayName": "",
+            "description": "",
+            "type": 0,
+            "persistenceType": 3,
+            "defaultValue": "",
+            "minValue": "0",
+            "maxValue": "100",
+            "usePlayerPrefs": false,
+            "playerPrefsDefaultValue": "",
+            "showAsProgress": false,
+            "iconPath": "",
+            "priority": 0,
+            "isHidden": false,
+            "order": 30,
+            "addValueForDay": 0,
+            "addValueForWeek": 0,
+            "addValueForMonth": 0,
+            "newUserAddValueForDay": [
+                0
+            ],
+            "newUserAddValueForWeek": [
+                0
+            ],
+            "newUserAddValueForMonth": [
+                0
+            ],
+            "isResetDaily": false,
+            "resetDailyValue": 0,
+            "isResident": false
+        },
+        {
+            "name": "火抗",
+            "displayName": "",
+            "description": "",
+            "type": 0,
+            "persistenceType": 3,
+            "defaultValue": "",
+            "minValue": "0",
+            "maxValue": "100",
+            "usePlayerPrefs": false,
+            "playerPrefsDefaultValue": "",
+            "showAsProgress": false,
+            "iconPath": "",
+            "priority": 0,
+            "isHidden": false,
+            "order": 31,
+            "addValueForDay": 0,
+            "addValueForWeek": 0,
+            "addValueForMonth": 0,
+            "newUserAddValueForDay": [
+                0
+            ],
+            "newUserAddValueForWeek": [
+                0
+            ],
+            "newUserAddValueForMonth": [
+                0
+            ],
+            "isResetDaily": false,
+            "resetDailyValue": 0,
+            "isResident": false
+        },
+        {
+            "name": "冰抗",
+            "displayName": "",
+            "description": "",
+            "type": 0,
+            "persistenceType": 3,
+            "defaultValue": "",
+            "minValue": "0",
+            "maxValue": "100",
+            "usePlayerPrefs": false,
+            "playerPrefsDefaultValue": "",
+            "showAsProgress": false,
+            "iconPath": "",
+            "priority": 0,
+            "isHidden": false,
+            "order": 32,
+            "addValueForDay": 0,
+            "addValueForWeek": 0,
+            "addValueForMonth": 0,
+            "newUserAddValueForDay": [
+                0
+            ],
+            "newUserAddValueForWeek": [
+                0
+            ],
+            "newUserAddValueForMonth": [
+                0
+            ],
+            "isResetDaily": false,
+            "resetDailyValue": 0,
+            "isResident": false
+        },
+        {
+            "name": "水抗",
+            "displayName": "",
+            "description": "",
+            "type": 0,
+            "persistenceType": 3,
+            "defaultValue": "",
+            "minValue": "0",
+            "maxValue": "100",
+            "usePlayerPrefs": false,
+            "playerPrefsDefaultValue": "",
+            "showAsProgress": false,
+            "iconPath": "",
+            "priority": 0,
+            "isHidden": false,
+            "order": 33,
+            "addValueForDay": 0,
+            "addValueForWeek": 0,
+            "addValueForMonth": 0,
+            "newUserAddValueForDay": [
+                0
+            ],
+            "newUserAddValueForWeek": [
+                0
+            ],
+            "newUserAddValueForMonth": [
+                0
+            ],
+            "isResetDaily": false,
+            "resetDailyValue": 0,
+            "isResident": false
+        },
+        {
+            "name": "雷抗",
+            "displayName": "",
+            "description": "",
+            "type": 0,
+            "persistenceType": 3,
+            "defaultValue": "",
+            "minValue": "0",
+            "maxValue": "100",
+            "usePlayerPrefs": false,
+            "playerPrefsDefaultValue": "",
+            "showAsProgress": false,
+            "iconPath": "",
+            "priority": 0,
+            "isHidden": false,
+            "order": 34,
+            "addValueForDay": 0,
+            "addValueForWeek": 0,
+            "addValueForMonth": 0,
+            "newUserAddValueForDay": [
+                0
+            ],
+            "newUserAddValueForWeek": [
+                0
+            ],
+            "newUserAddValueForMonth": [
+                0
+            ],
+            "isResetDaily": false,
+            "resetDailyValue": 0,
+            "isResident": false
+        },
+        {
+            "name": "土抗",
+            "displayName": "",
+            "description": "",
+            "type": 0,
+            "persistenceType": 3,
+            "defaultValue": "",
+            "minValue": "0",
+            "maxValue": "100",
+            "usePlayerPrefs": false,
+            "playerPrefsDefaultValue": "",
+            "showAsProgress": false,
+            "iconPath": "",
+            "priority": 0,
+            "isHidden": false,
+            "order": 35,
+            "addValueForDay": 0,
+            "addValueForWeek": 0,
+            "addValueForMonth": 0,
+            "newUserAddValueForDay": [
+                0
+            ],
+            "newUserAddValueForWeek": [
+                0
+            ],
+            "newUserAddValueForMonth": [
+                0
+            ],
+            "isResetDaily": false,
+            "resetDailyValue": 0,
+            "isResident": false
+        },
+        {
+            "name": "木抗",
+            "displayName": "",
+            "description": "",
+            "type": 0,
+            "persistenceType": 3,
+            "defaultValue": "",
+            "minValue": "0",
+            "maxValue": "100",
+            "usePlayerPrefs": false,
+            "playerPrefsDefaultValue": "",
+            "showAsProgress": false,
+            "iconPath": "",
+            "priority": 0,
+            "isHidden": false,
+            "order": 36,
+            "addValueForDay": 0,
+            "addValueForWeek": 0,
+            "addValueForMonth": 0,
+            "newUserAddValueForDay": [
+                0
+            ],
+            "newUserAddValueForWeek": [
+                0
+            ],
+            "newUserAddValueForMonth": [
+                0
+            ],
+            "isResetDaily": false,
+            "resetDailyValue": 0,
+            "isResident": false
+        },
+        {
+            "name": "毒抗",
+            "displayName": "",
+            "description": "",
+            "type": 0,
+            "persistenceType": 3,
+            "defaultValue": "",
+            "minValue": "0",
+            "maxValue": "100",
+            "usePlayerPrefs": false,
+            "playerPrefsDefaultValue": "",
+            "showAsProgress": false,
+            "iconPath": "",
+            "priority": 0,
+            "isHidden": false,
+            "order": 37,
+            "addValueForDay": 0,
+            "addValueForWeek": 0,
+            "addValueForMonth": 0,
+            "newUserAddValueForDay": [
+                0
+            ],
+            "newUserAddValueForWeek": [
+                0
+            ],
+            "newUserAddValueForMonth": [
+                0
+            ],
+            "isResetDaily": false,
+            "resetDailyValue": 0,
+            "isResident": false
+        },
+        {
+            "name": "暗抗",
+            "displayName": "",
+            "description": "",
+            "type": 0,
+            "persistenceType": 3,
+            "defaultValue": "",
+            "minValue": "0",
+            "maxValue": "100",
+            "usePlayerPrefs": false,
+            "playerPrefsDefaultValue": "",
+            "showAsProgress": false,
+            "iconPath": "",
+            "priority": 0,
+            "isHidden": false,
+            "order": 38,
+            "addValueForDay": 0,
+            "addValueForWeek": 0,
+            "addValueForMonth": 0,
+            "newUserAddValueForDay": [
+                0
+            ],
+            "newUserAddValueForWeek": [
+                0
+            ],
+            "newUserAddValueForMonth": [
+                0
+            ],
+            "isResetDaily": false,
+            "resetDailyValue": 0,
+            "isResident": false
+        },
+        {
+            "name": "风抗",
+            "displayName": "",
+            "description": "",
+            "type": 0,
+            "persistenceType": 3,
+            "defaultValue": "",
+            "minValue": "0",
+            "maxValue": "100",
+            "usePlayerPrefs": false,
+            "playerPrefsDefaultValue": "",
+            "showAsProgress": false,
+            "iconPath": "",
+            "priority": 0,
+            "isHidden": false,
+            "order": 39,
+            "addValueForDay": 0,
+            "addValueForWeek": 0,
+            "addValueForMonth": 0,
+            "newUserAddValueForDay": [
+                0
+            ],
+            "newUserAddValueForWeek": [
+                0
+            ],
+            "newUserAddValueForMonth": [
+                0
+            ],
+            "isResetDaily": false,
+            "resetDailyValue": 0,
+            "isResident": false
+        },
+        {
+            "name": "今日睡眠",
+            "displayName": "",
+            "description": "",
+            "type": 0,
+            "persistenceType": 3,
+            "defaultValue": "",
+            "minValue": "0",
+            "maxValue": "100",
+            "usePlayerPrefs": false,
+            "playerPrefsDefaultValue": "",
+            "showAsProgress": false,
+            "iconPath": "",
+            "priority": 0,
+            "isHidden": false,
+            "order": 40,
+            "addValueForDay": 0,
+            "addValueForWeek": 0,
+            "addValueForMonth": 0,
+            "newUserAddValueForDay": [
+                0
+            ],
+            "newUserAddValueForWeek": [
+                0
+            ],
+            "newUserAddValueForMonth": [
+                0
+            ],
+            "isResetDaily": true,
+            "resetDailyValue": 0,
+            "isResident": false
+        },
+        {
+            "name": "今日特殊睡眠",
+            "displayName": "",
+            "description": "",
+            "type": 0,
+            "persistenceType": 3,
+            "defaultValue": "",
+            "minValue": "0",
+            "maxValue": "100",
+            "usePlayerPrefs": false,
+            "playerPrefsDefaultValue": "",
+            "showAsProgress": false,
+            "iconPath": "",
+            "priority": 0,
+            "isHidden": false,
+            "order": 41,
+            "addValueForDay": 0,
+            "addValueForWeek": 0,
+            "addValueForMonth": 0,
+            "newUserAddValueForDay": [
+                0
+            ],
+            "newUserAddValueForWeek": [
+                0
+            ],
+            "newUserAddValueForMonth": [
+                0
+            ],
+            "isResetDaily": true,
+            "resetDailyValue": 0,
+            "isResident": false
+        }
+    ]
+}
