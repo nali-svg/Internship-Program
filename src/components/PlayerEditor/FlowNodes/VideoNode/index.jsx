@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { Handle, Position } from '@xyflow/react';
 import { Modal } from 'antd';
 import styles from './index.module.scss';
@@ -22,6 +22,10 @@ export default function VideoNode({ id, data, selected }) {
   const [videoObjectUrl, setVideoObjectUrl] = useState(null);
   const [showVideoPreview, setShowVideoPreview] = useState(false);
 
+  // 节点名称编辑状态
+  const [isEditingNodeName, setIsEditingNodeName] = useState(false);
+  const [editingNodeName, setEditingNodeName] = useState('');
+
   const effectiveVideoUrl = videoObjectUrl || data.videoObjectUrl || null;
   const hasVideoPreview = !!effectiveVideoUrl;
   const hasThumbnailPreview = !!(videoThumbnail || data.videoThumbnail);
@@ -31,7 +35,7 @@ export default function VideoNode({ id, data, selected }) {
   
   // 当外部data变化时，同步本地状态
   useEffect(() => {
-    const textFields = ['nodeName', 'conditionDesc', 'achievementName', 'variableName', 'fillColor', 'statsKeyPoint', 'jumpPointId', 'jumpPointDesc', 'defaultValue'];
+    const textFields = ['nodeName', 'description', 'conditionDesc', 'achievementName', 'variableName', 'fillColor', 'statsKeyPoint', 'jumpPointId', 'jumpPointDesc', 'defaultValue'];
     setLocalInputs(prev => {
       const newInputs = { ...prev };
       // 同步所有字段的值，确保外部更新能够反映到界面
@@ -95,6 +99,13 @@ export default function VideoNode({ id, data, selected }) {
     return localInputs[field] !== undefined ? localInputs[field] : (data[field] || '');
   }, [localInputs, data]);
 
+  // 当 nodeName 变化时，同步到编辑状态
+  useEffect(() => {
+    if (!isEditingNodeName) {
+      setEditingNodeName(getInputValue('nodeName') || '');
+    }
+  }, [data.nodeName, isEditingNodeName, getInputValue]);
+
   // 处理复选框变化
   const handleCheckboxChange = (field) => {
     updateNode(id, { [field]: !data[field] });
@@ -140,6 +151,21 @@ export default function VideoNode({ id, data, selected }) {
     const value = effect.value ?? '';
     return value !== '' ? `${variable} ${operation} ${value}` : `${variable} ${operation}`.trim();
   }, []);
+
+  // 商品列表映射（与Inspector中的商品列表保持一致）
+  const productList = useMemo(() => [
+    { id: '6216ba3d-af04-4d6f-a595-aa8adda4e385', name: '琉璃在床上' },
+    { id: '9673234d-61fb-47f8-8790-a6d7bed49cad', name: '琉璃床上写真' },
+    { id: '868bb8ad-5ce0-46f3-a4f5-e3e0aeafc81a', name: '莉莉丝床上写真' },
+    { id: 'b82a7ab8-23db-4bef-bcb4-b6ca0f80f2f8', name: '薇薇安床上写真' },
+    { id: 'eb3a56b3-e64b-412c-8d03-b1aa0eb46860', name: '幻想-伊莎贝拉' }
+  ], []);
+
+  // 根据商品ID获取商品名称
+  const getProductName = useCallback((productId) => {
+    const product = productList.find(p => p.id === productId);
+    return product ? product.name : productId;
+  }, [productList]);
 
   // 添加条件
   const handleAddCondition = () => {
@@ -416,7 +442,10 @@ export default function VideoNode({ id, data, selected }) {
       >
         {/* 卡片头部 */}
         <div className={styles.header}>
-          <h3 className={styles.title}>🎬 视频节点</h3>
+          <div className={styles.headerLeft}>
+            <h3 className={styles.title}>视频节点</h3>
+            <span className={styles.nodeId}>ID:{data.id}</span>
+          </div>
           <label className={styles.checkboxLabel}>
             <input 
               type="checkbox" 
@@ -430,7 +459,7 @@ export default function VideoNode({ id, data, selected }) {
 
         {/* 输入输出标签 */}
         <div className={styles.tabs}>
-          <div className={`${styles.tab} ${styles.inputTab} ${styles.active}`}>
+          <div className={`${styles.tab} ${styles.inputTab}`}>
             <Handle
               type="target"
               position={Position.Left}
@@ -446,6 +475,48 @@ export default function VideoNode({ id, data, selected }) {
               }}
             />
             <span className={styles.tabLabel}>输入</span>
+          </div>
+          <div className={styles.tabCenter}>
+            {isEditingNodeName ? (
+              <input
+                type="text"
+                value={editingNodeName}
+                onChange={(e) => setEditingNodeName(e.target.value)}
+                onBlur={() => {
+                  if (editingNodeName !== (getInputValue('nodeName') || '')) {
+                    handleTextInputChange('nodeName', editingNodeName);
+                    handleTextInputBlur('nodeName');
+                  }
+                  setIsEditingNodeName(false);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    if (editingNodeName !== (getInputValue('nodeName') || '')) {
+                      handleTextInputChange('nodeName', editingNodeName);
+                      handleTextInputBlur('nodeName');
+                    }
+                    setIsEditingNodeName(false);
+                  } else if (e.key === 'Escape') {
+                    setEditingNodeName(getInputValue('nodeName') || '');
+                    setIsEditingNodeName(false);
+                  }
+                }}
+                className={styles.nodeNameInput}
+                autoFocus
+              />
+            ) : (
+              <span 
+                className={styles.nodeNameLabel}
+                onDoubleClick={() => {
+                  setEditingNodeName(getInputValue('nodeName') || '');
+                  setIsEditingNodeName(true);
+                }}
+                style={{ cursor: 'text' }}
+                title="双击编辑"
+              >
+                {getInputValue('nodeName') || '节点名称'}
+              </span>
+            )}
           </div>
           <div className={`${styles.tab} ${styles.outputTab}`}>
             <span className={styles.tabLabel}>输出</span>
@@ -506,27 +577,11 @@ export default function VideoNode({ id, data, selected }) {
         {/* 基本信息区 */}
         <div className={styles.section}>
           <div className={styles.field}>
-            <label>ID</label>
-            <input type="text" value={data.id} readOnly className={styles.readonly} />
-          </div>
-          
-          <div className={styles.field}>
-            <label>节点名称</label>
-            <input 
-              type="text" 
-              value={getInputValue('nodeName')}
-              onChange={(e) => handleTextInputChange('nodeName', e.target.value)}
-              onBlur={() => handleTextInputBlur('nodeName')}
-              placeholder="输入节点名称"
-            />
-          </div>
-
-          <div className={styles.field}>
             <label>视频文件</label>
             <div className={styles.fileInput}>
-              <input type="text" value={data.videoFile} readOnly />
+              <input type="text" value={data.videoFile || '无 (视频剪辑)'} readOnly />
               <button 
-                className={`${styles.iconBtn} no-drag`}
+                className={`${styles.iconBtn} ${styles.folderIcon} no-drag`}
                 onClick={handleVideoFileSelect}
                 type="button"
               >
@@ -542,23 +597,11 @@ export default function VideoNode({ id, data, selected }) {
               className="no-drag"
             />
           </div>
-
-          <div className={styles.field}>
-            <label>显示类型</label>
-            <select 
-              value={data.displayType}
-              onChange={(e) => handleInputChange('displayType', e.target.value)}
-            >
-              <option>Auto</option>
-              <option>Image</option>
-              <option>Video</option>
-            </select>
-          </div>
-
         </div>
         </div>
       </div>
 
+      {/* 条件标签 */}
       {((data.conditions && data.conditions.length > 0) || startNodeId === id) && (
         <div className={styles.conditionTags}>
           {startNodeId === id && (
@@ -577,6 +620,7 @@ export default function VideoNode({ id, data, selected }) {
         </div>
       )}
 
+      {/* 效果标签 */}
       {data.effects && data.effects.length > 0 && (
         <div className={styles.effectTags}>
           {data.effects.map((effect, index) => (
@@ -587,6 +631,52 @@ export default function VideoNode({ id, data, selected }) {
               {formatEffectLabel(effect)}
             </div>
           ))}
+        </div>
+      )}
+
+      {/* 其他选项标签 */}
+      {(data.isEndpoint || data.isDeathPoint || data.isBlackScreen || data.isMemory || data.isDialogue || data.isJumpPoint || data.enableCommerce || data.unlockAchievement) && (
+        <div className={styles.optionTags}>
+          {data.isEndpoint && (
+            <div className={`${styles.optionTag} ${styles.endpointTag}`}>
+              设为终点节点
+            </div>
+          )}
+          {data.isDeathPoint && (
+            <div className={`${styles.optionTag} ${styles.deathTag}`}>
+              设为死亡点
+            </div>
+          )}
+          {data.isBlackScreen && (
+            <div className={`${styles.optionTag} ${styles.blackScreenTag}`}>
+              设为黑屏视频节点
+            </div>
+          )}
+          {data.isMemory && (
+            <div className={`${styles.optionTag} ${styles.memoryTag}`}>
+              设为回忆节点{data.memoryName ? `:${data.memoryName}` : ''}
+            </div>
+          )}
+          {data.isDialogue && (
+            <div className={`${styles.optionTag} ${styles.dialogueTag}`}>
+              设为对话节点{data.dialogueText ? `:${data.dialogueText.length > 10 ? data.dialogueText.substring(0, 10) + '...' : data.dialogueText}` : ''}
+            </div>
+          )}
+          {data.isJumpPoint && (
+            <div className={`${styles.optionTag} ${styles.jumpTag}`}>
+              设为跳转点{data.jumpPointId ? `:${data.jumpPointId}` : ''}
+            </div>
+          )}
+          {data.enableCommerce && (
+            <div className={`${styles.optionTag} ${styles.commerceTag}`}>
+              启用带货功能{data.showcaseProductIds && data.showcaseProductIds.length > 0 ? `:${data.showcaseProductIds.map(id => getProductName(id)).join(';')}` : ''}
+            </div>
+          )}
+          {data.unlockAchievement && data.achievementName && (
+            <div className={`${styles.optionTag} ${styles.achievementTag}`}>
+              成就:{data.achievementName}
+            </div>
+          )}
         </div>
       )}
 

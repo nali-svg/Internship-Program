@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Handle, Position } from '@xyflow/react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { Handle, Position, useReactFlow } from '@xyflow/react';
+import { Modal } from 'antd';
 import styles from './index.module.scss';
 import useFlowStore from '../../../../store/flowStore';
 
@@ -9,12 +10,50 @@ import useFlowStore from '../../../../store/flowStore';
  */
 export default function OptionNode({ id, data, selected }) {
   const updateNode = useFlowStore((state) => state.updateNode);
+  const { updateNodeInternals } = useReactFlow();
   
   // 展开/收起状态
   const [isExpanded, setIsExpanded] = useState(data.isExpanded || false);
   
+  // 计算是否有条件或效果
+  const hasConditionsOrEffects = useMemo(() => {
+    const hasConditions = Array.isArray(data.conditions) && data.conditions.length > 0;
+    const hasEffects = Array.isArray(data.effects) && data.effects.length > 0;
+    return hasConditions || hasEffects;
+  }, [data.conditions, data.effects]);
+  
+  // 当条件或效果变化时，更新节点内部尺寸
+  useEffect(() => {
+    if (updateNodeInternals) {
+      // 使用 setTimeout 确保 DOM 更新完成后再通知 React Flow
+      const timer = setTimeout(() => {
+        updateNodeInternals(id);
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+  }, [id, hasConditionsOrEffects, updateNodeInternals]);
+  
   // 本地输入状态，用于文本输入框（避免频繁更新store导致失去焦点）
   const [localInputs, setLocalInputs] = useState({});
+
+  // 选项文本编辑状态
+  const [isEditingOptionText, setIsEditingOptionText] = useState(false);
+  const [editingOptionText, setEditingOptionText] = useState('');
+
+  // 图片预览相关状态
+  const [imagePreview, setImagePreview] = useState(null);
+  const [showImagePreview, setShowImagePreview] = useState(false);
+
+  // 同步外部的 overlayImagePreview（从 Inspector 或其他来源）
+  useEffect(() => {
+    if (data.overlayImagePreview && data.overlayImagePreview !== imagePreview) {
+      setImagePreview(data.overlayImagePreview);
+    }
+  }, [data.overlayImagePreview, imagePreview]);
+
+  // 计算是否有图片预览
+  const hasImagePreview = !!(imagePreview || data.overlayImagePreview);
+  const enableOverlayImage = data.enableOverlayImage !== false;
 
   // 当外部data变化时，同步本地状态
   useEffect(() => {
@@ -51,6 +90,13 @@ export default function OptionNode({ id, data, selected }) {
     return localInputs[field] !== undefined ? localInputs[field] : (data[field] || '');
   }, [localInputs, data]);
 
+  // 当 optionText 变化时，同步到编辑状态
+  useEffect(() => {
+    if (!isEditingOptionText) {
+      setEditingOptionText(getInputValue('optionText') || '');
+    }
+  }, [data.optionText, isEditingOptionText, getInputValue]);
+
   // 处理复选框变化
   const handleCheckboxChange = (field) => {
     updateNode(id, { [field]: !data[field] });
@@ -68,22 +114,54 @@ export default function OptionNode({ id, data, selected }) {
     e.stopPropagation();
   };
 
+  // 格式化条件标签
+  const formatConditionLabel = useCallback((condition) => {
+    if (!condition) {
+      return '';
+    }
+    const operatorMap = {
+      Equals: '==',
+      NotEquals: '≠',
+      GreaterThan: '>',
+      LessThan: '<',
+      GreaterOrEqual: '≥',
+      LessOrEqual: '≤',
+    };
+    const left = condition.leftValue ?? '';
+    const operator = operatorMap[condition.operator] || condition.operator || '';
+    const right = condition.rightValue ?? '';
+    return `${left} ${operator} ${right}`.trim();
+  }, []);
+
+  // 格式化效果标签
+  const formatEffectLabel = useCallback((effect) => {
+    if (!effect) {
+      return '';
+    }
+    const operationMap = {
+      Set: '=',
+      Add: '+',
+      Subtract: '-',
+      Multiply: '*',
+      Divide: '/',
+    };
+    const variable = effect.variableName ?? '';
+    const operation = operationMap[effect.operation] || effect.operation || '';
+    const value = effect.value ?? '';
+    return value !== '' ? `${variable} ${operation} ${value}` : `${variable} ${operation}`.trim();
+  }, []);
+
   return (
-    <div 
-      className={`${styles.card} ${selected ? styles.selected : ''} ${isExpanded ? styles.expanded : ''} ${(data.conditions && data.conditions.length > 0) || (data.effects && data.effects.length > 0) ? styles.wide : ''}`}
-      tabIndex={0}
-    >
+    <div className={styles.nodeWrapper}>
+      <div 
+        className={`${styles.card} ${selected ? styles.selected : ''} ${isExpanded ? styles.expanded : ''}`}
+        tabIndex={0}
+      >
       {/* 标题栏 */}
       <div className={styles.header}>
-        <div className={styles.titleRow}>
+        <div className={styles.headerLeft}>
           <h3 className={styles.title}>选项节点</h3>
-          <button 
-            className={styles.expandButton}
-            onClick={toggleExpand}
-            title={isExpanded ? "收起" : "展开"}
-          >
-            {isExpanded ? '↑' : '↓'}
-          </button>
+          <span className={styles.nodeId}>ID:{data.id}</span>
         </div>
         <label className={styles.checkboxLabel}>
           <input 
@@ -98,7 +176,7 @@ export default function OptionNode({ id, data, selected }) {
 
       {/* 标签页导航 */}
       <div className={styles.tabs}>
-        <div className={`${styles.tab} ${styles.inputTab} ${styles.active}`}>
+        <div className={`${styles.tab} ${styles.inputTab}`}>
           <Handle
             type="target"
             position={Position.Left}
@@ -114,6 +192,48 @@ export default function OptionNode({ id, data, selected }) {
             }}
           />
           <span className={styles.tabLabel}>输入</span>
+        </div>
+        <div className={styles.tabCenter}>
+          {isEditingOptionText ? (
+            <input
+              type="text"
+              value={editingOptionText}
+              onChange={(e) => setEditingOptionText(e.target.value)}
+              onBlur={() => {
+                if (editingOptionText !== (getInputValue('optionText') || '')) {
+                  handleTextInputChange('optionText', editingOptionText);
+                  handleTextInputBlur('optionText');
+                }
+                setIsEditingOptionText(false);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  if (editingOptionText !== (getInputValue('optionText') || '')) {
+                    handleTextInputChange('optionText', editingOptionText);
+                    handleTextInputBlur('optionText');
+                  }
+                  setIsEditingOptionText(false);
+                } else if (e.key === 'Escape') {
+                  setEditingOptionText(getInputValue('optionText') || '');
+                  setIsEditingOptionText(false);
+                }
+              }}
+              className={styles.optionTextInput}
+              autoFocus
+            />
+          ) : (
+            <span 
+              className={styles.optionTextLabel}
+              onDoubleClick={() => {
+                setEditingOptionText(getInputValue('optionText') || '');
+                setIsEditingOptionText(true);
+              }}
+              style={{ cursor: 'text' }}
+              title="双击编辑"
+            >
+              {getInputValue('optionText') || '选择文本'}
+            </span>
+          )}
         </div>
         <div className={`${styles.tab} ${styles.outputTab}`}>
           <span className={styles.tabLabel}>输出</span>
@@ -134,26 +254,33 @@ export default function OptionNode({ id, data, selected }) {
         </div>
       </div>
 
+      {/* 图片预览 - 顶部位置（当启用叠加图片且有图片时显示） */}
+      {enableOverlayImage && hasImagePreview && (
+        <div
+          className={styles.imagePreviewContainer}
+          onClick={() => setShowImagePreview(true)}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              setShowImagePreview(true);
+            }
+          }}
+          title="点击查看大图"
+        >
+          <img
+            src={imagePreview || data.overlayImagePreview}
+            alt="叠加图片预览"
+            className={styles.imagePreviewImage}
+          />
+        </div>
+      )}
+
       {/* 主内容区 - 可滚动 */}
       <div className={`${styles.content} no-drag`} onWheel={handleContentWheel}>
         {/* 基本信息区 */}
         <div className={styles.section}>
-          <div className={styles.field}>
-            <label>ID</label>
-            <input type="text" value={data.id} readOnly className={styles.readonly} />
-          </div>
-          
-          <div className={styles.field}>
-            <label>选项文本</label>
-            <input 
-              type="text" 
-              value={getInputValue('optionText') || ''}
-              onChange={(e) => handleTextInputChange('optionText', e.target.value)}
-              onBlur={() => handleTextInputBlur('optionText')}
-              placeholder="输入选项文本"
-            />
-          </div>
-
           <div className={styles.field}>
             <label>描述</label>
             <input 
@@ -164,27 +291,54 @@ export default function OptionNode({ id, data, selected }) {
               placeholder="输入描述"
             />
           </div>
-
-          <div className={styles.field}>
-            <label>出现时间</label>
-            <input 
-              type="text" 
-              value={data.appearTime || 0}
-              onChange={(e) => {
-                const value = e.target.value;
-                const numValue = parseFloat(value);
-                handleInputChange('appearTime', isNaN(numValue) ? value : numValue);
-              }}
-              placeholder="输入时间"
-            />
-            <div className={styles.hint}>
-              提示: 设置为0或负数将使选项在视频开始时立即显示
-            </div>
-          </div>
-
         </div>
-
       </div>
+      </div>
+
+      {data.conditions && data.conditions.length > 0 && (
+        <div className={styles.conditionTags}>
+          {data.conditions.map((condition, index) => (
+            <div
+              key={condition.id ?? `${condition.leftValue ?? ''}-${index}`}
+              className={styles.conditionTag}
+            >
+              {formatConditionLabel(condition)}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {data.effects && data.effects.length > 0 && (
+        <div className={styles.effectTags}>
+          {data.effects.map((effect, index) => (
+            <div
+              key={effect.id ?? `effect-${index}`}
+              className={styles.effectTag}
+            >
+              {formatEffectLabel(effect)}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* 图片预览模态框 */}
+      <Modal
+        title="图片预览"
+        open={showImagePreview}
+        onCancel={() => setShowImagePreview(false)}
+        footer={null}
+        width={800}
+        centered
+        destroyOnClose
+      >
+        {hasImagePreview && (
+          <img
+            src={imagePreview || data.overlayImagePreview}
+            alt="叠加图片"
+            style={{ width: '100%', maxHeight: '70vh', objectFit: 'contain' }}
+          />
+        )}
+      </Modal>
     </div>
   );
 }

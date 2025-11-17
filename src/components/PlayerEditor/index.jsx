@@ -771,6 +771,7 @@ export default function PlayerEditor({ onNodeSelect }) {
     addCardNode,
     addJumpNode,
     addTaskNode,
+    addTipNode,
     setNodes, 
     setEdges,
     selectedNodeId,
@@ -794,6 +795,8 @@ export default function PlayerEditor({ onNodeSelect }) {
     clearGroupSelection,
     addNodesToGroup,
     updateNode,
+    copyNodes,
+    pasteNodes,
   } = useFlowStore();
 
 
@@ -820,6 +823,13 @@ export default function PlayerEditor({ onNodeSelect }) {
   
   // 拖拽连线的状态
   const [isDraggingEdge, setIsDraggingEdge] = React.useState(false);
+
+  // 鼠标在画布上的位置（用于粘贴）
+  const [mousePosition, setMousePosition] = React.useState({ x: 0, y: 0 });
+  const hasMouseMovedRef = React.useRef(false);
+
+  // 右键菜单状态
+  const [contextMenu, setContextMenu] = React.useState(null);
   const activeGroup = useMemo(() => {
     if (!Array.isArray(groups) || !selectedGroupId) {
       return null;
@@ -1043,6 +1053,7 @@ React.useEffect(() => {
       onNodeSelect(selectedNodeId);
     }
   }, [selectedNodeId, onNodeSelect]);
+
 
   // 处理节点变化
   const handleNodesChange = useCallback((changes) => {
@@ -1290,6 +1301,136 @@ React.useEffect(() => {
     return calculateCanvasCenter(viewport, containerSize);
   }, [reactFlowInstance]);
 
+  // 跟踪鼠标在画布上的位置
+  React.useEffect(() => {
+    const handleMouseMove = (event) => {
+      if (!reactFlowInstance || !containerRef.current) {
+        return;
+      }
+      
+      // 检查鼠标是否在画布容器内
+      const containerRect = containerRef.current.getBoundingClientRect();
+      const isInsideCanvas = 
+        event.clientX >= containerRect.left &&
+        event.clientX <= containerRect.right &&
+        event.clientY >= containerRect.top &&
+        event.clientY <= containerRect.bottom;
+      
+      if (!isInsideCanvas) {
+        return;
+      }
+      
+      // 使用 React Flow 的 screenToFlowPosition 方法将屏幕坐标转换为画布坐标
+      const flowPosition = reactFlowInstance.screenToFlowPosition({
+        x: event.clientX,
+        y: event.clientY,
+      });
+      
+      setMousePosition(flowPosition);
+      hasMouseMovedRef.current = true;
+    };
+
+    // 添加全局鼠标移动事件监听器
+    window.addEventListener('mousemove', handleMouseMove);
+
+    // 清理函数
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, [reactFlowInstance]);
+
+  // 键盘快捷键处理：复制和粘贴
+  React.useEffect(() => {
+    const handleKeyDown = (event) => {
+      // 检查是否在可编辑元素中（输入框、文本域等）
+      const target = event.target;
+      const isEditable = 
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.isContentEditable ||
+        (target.closest && target.closest('input, textarea, [contenteditable="true"]'));
+
+      // 如果在可编辑元素中，不处理快捷键
+      if (isEditable) {
+        return;
+      }
+
+      // 检查是否按下了 Ctrl/Cmd 键
+      const isModifierPressed = event.ctrlKey || event.metaKey;
+
+      if (!isModifierPressed) {
+        return;
+      }
+
+      // 处理复制 (Ctrl+C / Cmd+C)
+      if (event.key === 'c' || event.key === 'C') {
+        event.preventDefault();
+        
+        // 优先使用多选节点，否则使用单选节点
+        const nodeIdsToCopy = selectedNodeIds.length > 0 
+          ? selectedNodeIds 
+          : (selectedNodeId ? [selectedNodeId] : []);
+
+        if (nodeIdsToCopy.length > 0) {
+          copyNodes(nodeIdsToCopy);
+        }
+        return;
+      }
+
+      // 处理粘贴 (Ctrl+V / Cmd+V)
+      if (event.key === 'v' || event.key === 'V') {
+        event.preventDefault();
+        
+        // 使用鼠标位置作为粘贴位置，如果鼠标未在画布内移动过则使用画布中心
+        let pasteOffset;
+        if (hasMouseMovedRef.current) {
+          // 使用鼠标位置
+          pasteOffset = {
+            x: mousePosition.x,
+            y: mousePosition.y,
+          };
+        } else {
+          // 回退到画布中心
+          const centerPosition = getCanvasCenterPosition();
+          pasteOffset = {
+            x: centerPosition.x,
+            y: centerPosition.y,
+          };
+        }
+
+        const newNodeIds = pasteNodes(pasteOffset);
+        
+        if (newNodeIds.length > 0) {
+          // 粘贴后选中新粘贴的节点
+          setSelectedNodes(newNodeIds);
+          if (newNodeIds.length === 1) {
+            selectNode(newNodeIds[0]);
+          } else {
+            selectNode(null);
+          }
+        }
+        return;
+      }
+    };
+
+    // 添加全局键盘事件监听器
+    window.addEventListener('keydown', handleKeyDown);
+
+    // 清理函数
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [
+    selectedNodeId,
+    selectedNodeIds,
+    copyNodes,
+    pasteNodes,
+    setSelectedNodes,
+    selectNode,
+    mousePosition,
+    getCanvasCenterPosition,
+  ]);
+
   // 添加视频节点
   const handleAddVideoNode = () => {
     const centerPosition = getCanvasCenterPosition();
@@ -1371,7 +1512,69 @@ React.useEffect(() => {
       setSelectedNodes([]);
     }
     clearGroupSelection();
+    // 关闭右键菜单
+    setContextMenu(null);
   }, [isMultiSelectEnabled, setSelectedNodes, selectNode, clearGroupSelection]);
+
+  // 处理画布右键菜单
+  const handlePaneContextMenu = useCallback((event) => {
+    event.preventDefault();
+    
+    if (!reactFlowInstance || !containerRef.current) {
+      return;
+    }
+
+    // 获取鼠标在画布上的位置
+    const containerRect = containerRef.current.getBoundingClientRect();
+    const flowPosition = reactFlowInstance.screenToFlowPosition({
+      x: event.clientX,
+      y: event.clientY,
+    });
+
+    // 显示右键菜单
+    setContextMenu({
+      x: event.clientX,
+      y: event.clientY,
+      flowX: flowPosition.x,
+      flowY: flowPosition.y,
+    });
+  }, [reactFlowInstance]);
+
+  // 关闭右键菜单
+  const handleCloseContextMenu = useCallback(() => {
+    setContextMenu(null);
+  }, []);
+
+  // 处理菜单项点击
+  const handleContextMenuAction = useCallback((action, position) => {
+    handleCloseContextMenu();
+    
+    switch (action) {
+      case 'video':
+        addNode({ nodeName: `视频节点_${Date.now()}` }, position);
+        break;
+      case 'option':
+        addOptionNode({ optionText: `选项_${Date.now()}` }, position);
+        break;
+      case 'bgm':
+        addBgmNode({ audioFile: `♫ 无 (音频剪辑)` }, position);
+        break;
+      case 'card':
+        addCardNode({ nodeName: `卡牌_${Date.now()}` }, position);
+        break;
+      case 'tip':
+        addTipNode({ tipText: `提示_${Date.now()}` }, position);
+        break;
+      case 'jump':
+        addJumpNode({ jumpPointId: `跳转点_${Date.now()}` }, position);
+        break;
+      case 'task':
+        addTaskNode({ maxDisplayCount: 3 }, position);
+        break;
+      default:
+        break;
+    }
+  }, [addNode, addOptionNode, addBgmNode, addCardNode, addJumpNode, addTaskNode, addTipNode, handleCloseContextMenu]);
 
   const handleMultiSelectButtonClick = useCallback(() => {
     if (isMultiSelectEnabled) {
@@ -4307,6 +4510,7 @@ React.useEffect(() => {
           onNodeClick={handleNodeClick}
           onSelectionChange={onSelectionChange}
           onPaneClick={handlePaneClick}
+          onPaneContextMenu={handlePaneContextMenu}
           selectionOnDrag={false}
           elementsSelectable={!isMultiSelectEnabled}
           panOnDrag={canPanOnDrag}
@@ -4422,6 +4626,38 @@ React.useEffect(() => {
           </div>
         </div>
     </div>
+
+      {/* 右键菜单 */}
+      {contextMenu && (
+        <Dropdown
+          menu={{
+            items: [
+              { key: 'video', label: '添加视频节点' },
+              { key: 'option', label: '添加选项节点' },
+              { key: 'bgm', label: '添加BGM节点' },
+              { key: 'card', label: '添加卡牌节点' },
+              { key: 'tip', label: '添加提示节点' },
+              { key: 'jump', label: '添加跳转节点' },
+              { key: 'task', label: '添加任务节点' },
+            ],
+            onClick: ({ key }) => handleContextMenuAction(key, { x: contextMenu.flowX, y: contextMenu.flowY }),
+          }}
+          trigger={['contextMenu']}
+          open={true}
+          onOpenChange={(open) => !open && handleCloseContextMenu()}
+        >
+          <div
+            style={{
+              position: 'fixed',
+              top: contextMenu.y,
+              left: contextMenu.x,
+              width: 1,
+              height: 1,
+              pointerEvents: 'none',
+            }}
+          />
+        </Dropdown>
+      )}
 
       {/* 隐藏的加载文件输入 */}
       <input

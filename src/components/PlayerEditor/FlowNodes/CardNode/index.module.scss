@@ -1,15 +1,20 @@
+/* 节点包装器 */
+.nodeWrapper {
+    position: relative;
+    display: inline-block;
+}
+
 .card {
     background: #fff6e5;
     border: 1px solid #ddd;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    width: 320px;
-    max-height: 370px;
+    width: 360px;
     display: flex;
     flex-direction: column;
     overflow: hidden;
     user-select: none;
-    transition: box-shadow 0.2s ease, max-height 0.3s ease;
+    transition: box-shadow 0.2s ease, max-height 0.3s ease, width 0.3s ease;
     position: relative;
     
     &:hover {
@@ -39,7 +44,7 @@
 
 .header {
     padding: 8px 12px;
-    background: #ffe8c2;
+    background: #ffe8c2; // 黄色 - 卡牌节点
     border-bottom: 1px solid #e9ecef;
     display: flex;
     justify-content: space-between;
@@ -53,7 +58,7 @@
     }
 }
 
-.titleRow {
+.headerLeft {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -66,25 +71,30 @@
     color: #333;
 }
 
+.nodeId {
+    font-size: 13px;
+    color: #666;
+    font-weight: 400;
+}
+
 .expandButton {
-    padding: 2px 8px;
+    padding: 2px 6px;
+    background: #f5f5f5;
     border: 1px solid #d0d0d0;
-    background: white;
-    border-radius: 4px;
+    border-radius: 3px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 12px;
     color: #666;
     transition: all 0.2s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-width: 24px;
-    height: 24px;
+    min-width: 20px;
+    height: 20px;
     
     &:hover {
-        background: #f0f0f0;
-        border-color: #1890ff;
-        color: #1890ff;
+        background: #e0e0e0;
+        border-color: #999;
     }
     
     &:active {
@@ -103,6 +113,9 @@
     
     input[type="checkbox"] {
         cursor: pointer;
+        width: 16px;
+        height: 16px;
+        accent-color: #1890ff;
     }
     
     span {
@@ -114,10 +127,12 @@
     display: flex;
     border-bottom: 1px solid #f2e5b9;
     background: #fff9e6;
+    align-items: center;
+    min-height: 40px;
 }
 
 .tab {
-    flex: 1;
+    flex: 0 0 auto;
     padding: 8px 12px;
     border: none;
     background: transparent;
@@ -127,16 +142,8 @@
     transition: color 0.2s ease;
     display: flex;
     align-items: center;
-    justify-content: center;
     gap: 6px;
     position: relative;
-    min-height: 32px;
-    pointer-events: none;
-    
-    &.active {
-        color: #5c450c;
-        font-weight: 600;
-    }
 }
 
 .tabLabel {
@@ -146,23 +153,46 @@
     letter-spacing: 0.2px;
 }
 
+.tabCenter {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 12px;
+}
+
+.nodeNameLabel {
+    font-size: 13px;
+    color: #806212;
+    white-space: nowrap;
+}
+
+.nodeNameInput {
+    flex: 1;
+    min-width: 0;
+    padding: 4px 8px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #333;
+    background: #fff;
+    transition: all 0.2s;
+    
+    &:focus {
+        outline: none;
+        border-color: #40a9ff;
+        box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+    }
+    
+    &::placeholder {
+        color: #bbb;
+    }
+}
+
 .inputTab {
     position: relative;
     justify-content: flex-start;
     padding-left: 26px;
-}
-
-.inputTab::before {
-    content: '';
-    position: absolute;
-    left: 6px;
-    top: 50%;
-    width: 8px;
-    height: 8px;
-    border-right: 2px solid rgba(128, 98, 18, 0.8);
-    border-bottom: 2px solid rgba(128, 98, 18, 0.8);
-    transform: translateY(-50%) rotate(-45deg);
-    opacity: 0.85;
 }
 
 .outputTab {
@@ -290,17 +320,26 @@
 }
 
 .iconBtn {
-    padding: 6px 12px;
+    width: 36px;
+    height: 36px;
+    padding: 0;
     border: 1px solid #d9d9d9;
-    background: white;
     border-radius: 4px;
+    background: #fff;
     cursor: pointer;
-    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: all 0.2s;
+    font-size: 18px;
     
     &:hover {
-        border-color: #1890ff;
-        color: #1890ff;
+        background: #f8f9fa;
+        border-color: #40a9ff;
+    }
+    
+    &:active {
+        background: #e9ecef;
     }
 }
 
@@ -459,18 +498,7 @@
 }
 
 /* React Flow Handle 样式定制 */
-:global(.react-flow__handle) {
-    opacity: 0;
-    transition: opacity 0.2s ease;
-}
-
-.card:hover :global(.react-flow__handle) {
-    opacity: 1;
-}
-
-/* 圆框样式的 Handle */
 .portHandle {
-    box-shadow: 0 1px 3px rgba(255, 193, 7, 0.35);
     transition: transform 0.2s ease;
     pointer-events: auto;
     opacity: 1 !important;
@@ -502,31 +530,102 @@
     cursor: move;
 }
 
-/* 图片预览容器 */
-.imagePreviewContainer {
-    margin: 12px 0;
+/* 条件标签容器 */
+.conditionTags {
+    position: absolute;
+    top: 100%;
+    left: 0;
     display: flex;
-    justify-content: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px 12px;
+    background: transparent;
+    border: none;
+    width: 360px;
+    max-width: 360px;
+    z-index: 1;
+    box-sizing: border-box;
+}
+
+/* 条件标签 */
+.conditionTag {
+    display: inline-block;
+    padding: 4px 10px;
+    background: #fff;
+    border: 1px solid #52c41a;
+    border-radius: 12px;
+    font-size: 12px;
+    color: #389e0d;
+    white-space: nowrap;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* 效果标签容器 */
+.effectTags {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px 12px;
+    background: transparent;
+    border: none;
+    width: 360px;
+    max-width: 360px;
+    z-index: 1;
+    box-sizing: border-box;
+}
+
+/* 当同时有条件标签时，效果标签需要向下偏移 */
+.conditionTags + .effectTags {
+    top: calc(100% + 40px);
+}
+
+/* 效果标签 */
+.effectTag {
+    display: inline-block;
+    padding: 4px 10px;
+    background: #fff;
+    border: 1px solid #ff85c0;
+    border-radius: 12px;
+    font-size: 12px;
+    color: #c41d7f;
+    white-space: nowrap;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* 图片预览容器 - 顶部位置（类似视频预览） */
+.imagePreviewContainer {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    border-bottom: 1px solid #e0e0e0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    background-color: #f5f5f5;
+    position: relative;
+    display: flex;
     align-items: center;
-    background: #f5f5f5;
-    border-radius: 8px;
-    padding: 8px;
-    border: 1px solid #e0e0e0;
+    justify-content: center;
+    
+    &:hover {
+        opacity: 0.95;
+        background-color: #f0f0f0;
+    }
 }
 
 .imagePreviewImage {
-    max-width: 100%;
+    width: 100%;
+    height: 100%;
+    display: block;
     max-height: 200px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    object-fit: contain;
+    background-color: #f5f5f5;
+    transition: opacity 0.2s ease;
     
     &:hover {
-        transform: scale(1.02);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-    
-    &:active {
-        transform: scale(0.98);
+        opacity: 0.9;
     }
 }

@@ -77,13 +77,6 @@ export default function TaskNode({ id, data, selected }) {
       <div className={styles.header}>
         <div className={styles.titleRow}>
           <h3 className={styles.title}>任务节点</h3>
-          <button 
-            className={styles.expandButton}
-            onClick={toggleExpand}
-            title={isExpanded ? "收起" : "展开"}
-          >
-            {isExpanded ? '↑' : '↓'}
-          </button>
         </div>
         <label className={styles.checkboxLabel}>
           <input 

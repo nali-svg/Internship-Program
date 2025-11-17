@@ -3,13 +3,13 @@
     border: 1px solid #ddd;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    width: 320px;
+    width: 360px;
     max-height: 400px;
     display: flex;
     flex-direction: column;
     overflow: hidden;
     user-select: none;
-    transition: box-shadow 0.2s ease, max-height 0.3s ease;
+    transition: box-shadow 0.2s ease, max-height 0.3s ease, width 0.3s ease;
     position: relative;
     
     &:hover {
@@ -53,11 +53,23 @@
     }
 }
 
+.headerLeft {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .title {
     margin: 0;
     font-size: 16px;
     font-weight: 600;
     color: #333;
+}
+
+.nodeId {
+    font-size: 13px;
+    color: #666;
+    font-weight: 400;
 }
 
 .checkboxLabel {
@@ -82,10 +94,12 @@
     display: flex;
     border-bottom: 1px solid #e0ecfb;
     background: #e3f2fd;
+    align-items: center;
+    min-height: 40px;
 }
 
 .tab {
-    flex: 1;
+    flex: 0 0 auto;
     padding: 8px 12px;
     border: none;
     background: transparent;
@@ -95,10 +109,8 @@
     transition: color 0.2s ease;
     display: flex;
     align-items: center;
-    justify-content: center;
     gap: 6px;
     position: relative;
-    min-height: 32px;
     
     &.active {
         color: #184c8c;
@@ -113,25 +125,46 @@
     letter-spacing: 0.2px;
 }
 
+.tabCenter {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 12px;
+}
+
+.nodeNameLabel {
+    font-size: 13px;
+    color: #446b9c;
+    white-space: nowrap;
+}
+
+.nodeNameInput {
+    flex: 1;
+    min-width: 0;
+    padding: 4px 8px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #333;
+    background: #fff;
+    transition: all 0.2s;
+    
+    &:focus {
+        outline: none;
+        border-color: #40a9ff;
+        box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+    }
+    
+    &::placeholder {
+        color: #bbb;
+    }
+}
+
 .inputTab {
     position: relative;
     justify-content: flex-start;
     padding-left: 26px;
-}
-
-.inputTab::before {
-    content: '';
-    position: absolute;
-    left: 6px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 8px;
-    height: 8px;
-    border-right: 2px solid rgba(68, 107, 156, 0.85);
-    border-bottom: 2px solid rgba(68, 107, 156, 0.85);
-    transform-origin: center;
-    transform: translateY(-50%) rotate(-45deg);
-    opacity: 0.85;
 }
 
 .outputTab {
@@ -253,6 +286,7 @@
     align-items: center;
     justify-content: center;
     transition: all 0.2s;
+    font-size: 18px;
     
     &:hover {
         background: #f8f9fa;
@@ -262,6 +296,10 @@
     &:active {
         background: #e9ecef;
     }
+}
+
+.folderIcon {
+    filter: hue-rotate(30deg) saturate(1.2);
 }
 
 .checkboxGroup {
@@ -388,8 +426,8 @@
     padding: 4px 0;
     margin-top: 4px;
     justify-content: flex-start;
-    width: 320px; // 与卡片宽度一致
-    max-width: 320px; // 确保不超过卡片宽度
+    width: 360px; // 与卡片宽度一致
+    max-width: 360px; // 确保不超过卡片宽度
 }
 
 /* 单个条件标签 */
@@ -421,8 +459,8 @@
     padding: 4px 0;
     margin-top: 0px;
     justify-content: flex-start;
-    width: 320px; // 与卡片宽度一致
-    max-width: 320px; // 确保不超过卡片宽度
+    width: 360px; // 与卡片宽度一致
+    max-width: 360px; // 确保不超过卡片宽度
 }
 
 /* 单个效果标签 */
@@ -815,4 +853,180 @@ select:disabled {
         flex-direction: column;
         gap: 8px;
     }
+}
+
+/* 节点包装器 */
+.nodeWrapper {
+    position: relative;
+    display: inline-block;
+}
+
+/* 条件标签容器 */
+.conditionTags {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px 12px;
+    background: transparent;
+    border: none;
+    width: 360px;
+    max-width: 360px;
+    z-index: 1;
+    box-sizing: border-box;
+}
+
+/* 条件标签 */
+.conditionTag {
+    display: inline-block;
+    padding: 4px 10px;
+    background: #fff;
+    border: 1px solid #52c41a;
+    border-radius: 12px;
+    font-size: 12px;
+    color: #389e0d;
+    white-space: nowrap;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.startTag {
+    background: #f6ffed;
+    border-color: #52c41a;
+    color: #389e0d;
+}
+
+/* 效果标签容器 */
+.effectTags {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px 12px;
+    background: transparent;
+    border: none;
+    width: 360px;
+    max-width: 360px;
+    z-index: 1;
+    box-sizing: border-box;
+}
+
+/* 当同时有条件标签时，效果标签需要向下偏移 */
+.conditionTags + .effectTags {
+    top: calc(100% + 40px);
+}
+
+/* 效果标签 */
+.effectTag {
+    display: inline-block;
+    padding: 4px 10px;
+    background: #fff;
+    border: 1px solid #ff85c0;
+    border-radius: 12px;
+    font-size: 12px;
+    color: #c41d7f;
+    white-space: nowrap;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* 其他选项标签容器 */
+.optionTags {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px 12px;
+    background: transparent;
+    border: none;
+    width: 360px;
+    max-width: 360px;
+    z-index: 1;
+    box-sizing: border-box;
+}
+
+/* 当有条件标签时，选项标签需要向下偏移 */
+.conditionTags + .optionTags {
+    top: calc(100% + 40px);
+}
+
+/* 当有效果标签时，选项标签需要向下偏移 */
+.effectTags + .optionTags {
+    top: calc(100% + 40px);
+}
+
+/* 当同时有条件标签和效果标签时，选项标签需要向下偏移 */
+.conditionTags + .effectTags + .optionTags {
+    top: calc(100% + 80px);
+}
+
+/* 选项标签基础样式 */
+.optionTag {
+    display: inline-block;
+    padding: 4px 10px;
+    background: #fff;
+    border-radius: 12px;
+    font-size: 12px;
+    white-space: nowrap;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* 终点节点标签 */
+.endpointTag {
+    background: #f0f5ff;
+    border: 1px solid #722ed1;
+    color: #531dab;
+}
+
+/* 死亡点标签 */
+.deathTag {
+    background: #fff1f0;
+    border: 1px solid #ff4d4f;
+    color: #cf1322;
+}
+
+/* 黑屏视频节点标签 */
+.blackScreenTag {
+    background: #fafafa;
+    border: 1px solid #595959;
+    color: #262626;
+}
+
+/* 回忆节点标签 */
+.memoryTag {
+    background: #fff0f6;
+    border: 1px solid #ff85c0;
+    color: #c41d7f;
+}
+
+/* 对话节点标签 */
+.dialogueTag {
+    background: #e6f7ff;
+    border: 1px solid #13c2c2;
+    color: #08979c;
+}
+
+/* 跳转点标签 */
+.jumpTag {
+    background: #fff7e6;
+    border: 1px solid #fa8c16;
+    color: #d46b08;
+}
+
+/* 带货功能标签 */
+.commerceTag {
+    background: #fff7e6;
+    border: 1px solid #fa8c16;
+    color: #d46b08;
+}
+
+/* 成就标签 */
+.achievementTag {
+    background: #f6ffed;
+    border: 1px solid #52c41a;
+    color: #389e0d;
 }

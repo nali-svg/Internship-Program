@@ -1,15 +1,20 @@
+/* 节点包装器 */
+.nodeWrapper {
+    position: relative;
+    display: inline-block;
+}
+
 .card {
     background: #fff4e8;
     border: 1px solid #ddd;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    width: 320px;
-    max-height: 350px;
+    width: 360px;
     display: flex;
     flex-direction: column;
     overflow: hidden;
     user-select: none;
-    transition: box-shadow 0.2s ease, max-height 0.3s ease;
+    transition: box-shadow 0.2s ease, max-height 0.3s ease, width 0.3s ease;
     position: relative;
     
     &:hover {
@@ -39,8 +44,8 @@
 
 .header {
     padding: 8px 12px;
-    background: #ffe9d6;
-    border-bottom: 1px solid #f8d6b8;
+    background: #ffe9d6; // 橙色 - 跳转节点
+    border-bottom: 1px solid #e9ecef;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -53,7 +58,7 @@
     }
 }
 
-.titleRow {
+.headerLeft {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -66,30 +71,10 @@
     color: #333;
 }
 
-.expandButton {
-    padding: 2px 8px;
-    border: 1px solid #d0d0d0;
-    background: white;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
+.nodeId {
+    font-size: 13px;
     color: #666;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 24px;
-    height: 24px;
-    
-    &:hover {
-        background: #f0f0f0;
-        border-color: #1890ff;
-        color: #1890ff;
-    }
-    
-    &:active {
-        transform: scale(0.95);
-    }
+    font-weight: 400;
 }
 
 .checkboxLabel {
@@ -103,6 +88,9 @@
     
     input[type="checkbox"] {
         cursor: pointer;
+        width: 16px;
+        height: 16px;
+        accent-color: #1890ff;
     }
     
     span {
@@ -114,10 +102,12 @@
     display: flex;
     border-bottom: 1px solid #f8d6b8;
     background: #fff4e8;
+    align-items: center;
+    min-height: 40px;
 }
 
 .tab {
-    flex: 1;
+    flex: 0 0 auto;
     padding: 8px 12px;
     border: none;
     background: transparent;
@@ -127,16 +117,8 @@
     transition: color 0.2s ease;
     display: flex;
     align-items: center;
-    justify-content: center;
     gap: 6px;
     position: relative;
-    min-height: 32px;
-    pointer-events: none;
-    
-    &.active {
-        color: #7d4b1f;
-        font-weight: 600;
-    }
 }
 
 .tabLabel {
@@ -146,23 +128,46 @@
     letter-spacing: 0.2px;
 }
 
+.tabCenter {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 12px;
+}
+
+.nodeNameLabel {
+    font-size: 13px;
+    color: #a2652f;
+    white-space: nowrap;
+}
+
+.nodeNameInput {
+    flex: 1;
+    min-width: 0;
+    padding: 4px 8px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #333;
+    background: #fff;
+    transition: all 0.2s;
+    
+    &:focus {
+        outline: none;
+        border-color: #40a9ff;
+        box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+    }
+    
+    &::placeholder {
+        color: #bbb;
+    }
+}
+
 .inputTab {
     position: relative;
     justify-content: flex-start;
     padding-left: 26px;
-}
-
-.inputTab::before {
-    content: '';
-    position: absolute;
-    left: 6px;
-    top: 50%;
-    width: 8px;
-    height: 8px;
-    border-right: 2px solid rgba(162, 101, 47, 0.8);
-    border-bottom: 2px solid rgba(162, 101, 47, 0.8);
-    transform: translateY(-50%) rotate(-45deg);
-    opacity: 0.85;
 }
 
 .outputTab {
@@ -266,18 +271,7 @@
 }
 
 /* React Flow Handle 样式定制 */
-:global(.react-flow__handle) {
-    opacity: 0;
-    transition: opacity 0.2s ease;
-}
-
-.card:hover :global(.react-flow__handle) {
-    opacity: 1;
-}
-
-/* 圆框样式的 Handle */
 .portHandle {
-    box-shadow: 0 1px 3px rgba(39, 66, 125, 0.35);
     transition: transform 0.2s ease;
     pointer-events: auto;
     opacity: 1 !important;

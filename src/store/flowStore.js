@@ -35,6 +35,9 @@ const useFlowStore = create((set, get) => ({
   // 变量数组
   variables: [],
 
+  // 复制的节点数据（用于粘贴）
+  copiedNodes: [],
+
   /**
    * 设置变量列表
    * @param {Array} variables
@@ -164,6 +167,7 @@ const useFlowStore = create((set, get) => ({
       position: defaultPosition,
       data: {
         id: nodeId,
+        nodeName: `BGM节点_${nodeId}`,
         audioFile: '♫ 无 (音频剪辑)',
         loop: false,
         volume: 1,
@@ -198,7 +202,7 @@ const useFlowStore = create((set, get) => ({
       position: defaultPosition,
       data: {
         id: nodeId,
-        nodeName: '',
+        nodeName: `卡牌_${nodeId}`,
         cardImage: '无 (精灵)',
         cardSizeX: 200,
         cardSizeY: 300,
@@ -272,6 +276,39 @@ const useFlowStore = create((set, get) => ({
         maxDisplayCount: 3,
         taskListInput: '',
         parsedTasks: [],
+        isCheckpoint: false,
+        isExpanded: false,
+        activeTab: 'input',
+        ...nodeData,
+      },
+    };
+    
+    set((state) => ({
+      nodes: [...state.nodes, newNode],
+    }));
+    
+    return newNode.id;
+  },
+
+  /**
+   * 添加提示节点
+   * @param {Object} nodeData - 节点数据
+   * @param {Object} position - 节点位置 { x, y }
+   */
+  addTipNode: (nodeData, position) => {
+    const nodeId = `${Date.now()}_${nodeIdCounter++}`;
+    const defaultPosition = position || { x: 250, y: 150 };
+    const newNode = {
+      id: `node_${nodeId}`,
+      type: 'tipNode',
+      position: defaultPosition,
+      data: {
+        id: nodeId,
+        nodeName: `提示_${nodeId}`,
+        tipText: '',
+        requireAd: false,
+        adType: '',
+        isResetToCP: false,
         isCheckpoint: false,
         isExpanded: false,
         activeTab: 'input',
@@ -942,6 +979,119 @@ const useFlowStore = create((set, get) => ({
         selectedGroupId,
       };
     });
+  },
+
+  /**
+   * 复制节点
+   * @param {string[]} nodeIds - 要复制的节点ID数组
+   */
+  copyNodes: (nodeIds = []) => {
+    if (!Array.isArray(nodeIds) || nodeIds.length === 0) {
+      return;
+    }
+    const state = get();
+    const nodesToCopy = state.nodes.filter((node) => nodeIds.includes(node.id));
+    if (nodesToCopy.length === 0) {
+      return;
+    }
+
+    // 深拷贝节点数据，清除临时数据
+    const copiedNodes = nodesToCopy.map((node) => {
+      const nodeData = { ...node.data };
+      // 清除会话相关的临时数据
+      if (nodeData.videoObjectUrl) {
+        nodeData.videoObjectUrl = null;
+      }
+      // 深拷贝复杂对象
+      if (nodeData.subtitles && Array.isArray(nodeData.subtitles)) {
+        nodeData.subtitles = JSON.parse(JSON.stringify(nodeData.subtitles));
+      }
+      if (nodeData.conditions && Array.isArray(nodeData.conditions)) {
+        nodeData.conditions = JSON.parse(JSON.stringify(nodeData.conditions));
+      }
+      if (nodeData.effects && Array.isArray(nodeData.effects)) {
+        nodeData.effects = JSON.parse(JSON.stringify(nodeData.effects));
+      }
+      if (nodeData.parsedTasks && Array.isArray(nodeData.parsedTasks)) {
+        nodeData.parsedTasks = JSON.parse(JSON.stringify(nodeData.parsedTasks));
+      }
+
+      return {
+        type: node.type,
+        position: { ...node.position },
+        data: nodeData,
+      };
+    });
+
+    set({ copiedNodes });
+  },
+
+  /**
+   * 粘贴节点
+   * @param {Object} offset - 位置偏移量 { x, y }，默认为 { x: 50, y: 50 }
+   * @returns {string[]} 新创建的节点ID数组
+   */
+  pasteNodes: (offset = { x: 50, y: 50 }) => {
+    const state = get();
+    const { copiedNodes } = state;
+    if (!Array.isArray(copiedNodes) || copiedNodes.length === 0) {
+      return [];
+    }
+
+    const newNodeIds = [];
+    const offsetX = Number.isFinite(offset.x) ? offset.x : 50;
+    const offsetY = Number.isFinite(offset.y) ? offset.y : 50;
+
+    // 计算原始节点的中心位置（用于保持相对位置）
+    let minX = Infinity;
+    let minY = Infinity;
+    copiedNodes.forEach((node) => {
+      if (node.position.x < minX) minX = node.position.x;
+      if (node.position.y < minY) minY = node.position.y;
+    });
+
+    copiedNodes.forEach((node) => {
+      const newPosition = {
+        x: node.position.x - minX + offsetX,
+        y: node.position.y - minY + offsetY,
+      };
+
+      // 根据节点类型调用对应的添加方法
+      let newNodeId;
+      const nodeData = { ...node.data };
+      // 清除ID，让系统生成新的
+      delete nodeData.id;
+
+      switch (node.type) {
+        case 'videoNode':
+          newNodeId = get().addNode(nodeData, newPosition);
+          break;
+        case 'optionNode':
+          newNodeId = get().addOptionNode(nodeData, newPosition);
+          break;
+        case 'bgmNode':
+          newNodeId = get().addBgmNode(nodeData, newPosition);
+          break;
+        case 'cardNode':
+          newNodeId = get().addCardNode(nodeData, newPosition);
+          break;
+        case 'jumpNode':
+          newNodeId = get().addJumpNode(nodeData, newPosition);
+          break;
+        case 'taskNode':
+          newNodeId = get().addTaskNode(nodeData, newPosition);
+          break;
+        default:
+          console.warn(`[pasteNodes] 未知的节点类型: ${node.type}`);
+          return;
+      }
+
+      if (newNodeId) {
+        newNodeIds.push(newNodeId);
+      }
+    });
+
+    return newNodeIds;
   },
 }));
 
