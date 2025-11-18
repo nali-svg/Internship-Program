@@ -797,6 +797,17 @@ export default function PlayerEditor({ onNodeSelect }) {
     updateNode,
     copyNodes,
     pasteNodes,
+    // 框选相关状态和方法
+    isSelecting,
+    selectionStart,
+    selectionEnd,
+    selectionBox: storeSelectionBox,
+    accumulatedSelectedNodeIds,
+    startSelection,
+    updateSelection,
+    updateAccumulatedSelection,
+    finishSelection,
+    cancelSelection,
   } = useFlowStore();
 
 
@@ -830,6 +841,13 @@ export default function PlayerEditor({ onNodeSelect }) {
 
   // 右键菜单状态
   const [contextMenu, setContextMenu] = React.useState(null);
+
+  // 框选相关 ref（用于检测是否刚完成框选，防止 onSelectionChange 清空选择）
+  const justFinishedSelectionRef = React.useRef(false);
+  
+  // 搜索框状态
+  const [searchQuery, setSearchQuery] = React.useState('');
+  const [searchResults, setSearchResults] = React.useState([]);
   const activeGroup = useMemo(() => {
     if (!Array.isArray(groups) || !selectedGroupId) {
       return null;
@@ -846,7 +864,8 @@ export default function PlayerEditor({ onNodeSelect }) {
   }, [activeGroup, selectedNodeIds]);
 
   const canJoinGroup = activeGroup && pendingJoinNodeIds.length > 0;
-  const canPanOnDrag = !isPanLocked && !isMultiSelectEnabled;
+  // 只允许鼠标中键（button 1）进行画布拖拽
+  const canPanOnDrag = !isPanLocked && !isMultiSelectEnabled ? [1] : false;
   const canZoomOnScroll = !isPanLocked;
   
   // React Flow 的节点和边状态管理
@@ -997,6 +1016,7 @@ export default function PlayerEditor({ onNodeSelect }) {
   const pendingDisconnectRef = useRef(null);
   const connectSuccessRef = useRef(false);
 
+
   // 优化MiniMap的节点颜色函数
   const nodeColor = useMemo(() => {
     return (node) => {
@@ -1023,6 +1043,11 @@ export default function PlayerEditor({ onNodeSelect }) {
 
   // 同步 Zustand store 和 React Flow 状态（使用防抖优化）
   React.useEffect(() => {
+    // 如果正在框选或刚完成框选，不更新 ReactFlow 节点状态（避免覆盖框选结果）
+    if (isSelecting || justFinishedSelectionRef.current) {
+      return;
+    }
+    
     const selectedSet = new Set(
       (selectedNodeIds && selectedNodeIds.length > 0)
         ? selectedNodeIds
@@ -1033,7 +1058,7 @@ export default function PlayerEditor({ onNodeSelect }) {
       selected: selectedSet.has(node.id),
     }));
     setReactFlowNodes(nodesWithSelection);
-  }, [nodes, setReactFlowNodes, selectedNodeId, selectedNodeIds]);
+  }, [nodes, setReactFlowNodes, selectedNodeId, selectedNodeIds, isSelecting]);
 
   React.useEffect(() => {
     setReactFlowEdges(edges);
@@ -1273,6 +1298,12 @@ React.useEffect(() => {
   // 处理节点选择
   const onSelectionChange = useCallback(({ nodes: selectedNodes = [], edges: selectedEdgesList = [] }) => {
     setSelectedEdges(selectedEdgesList || []);
+    
+    // 如果正在框选或刚完成框选，忽略 ReactFlow 的选择变化（避免清空框选结果）
+    if (isSelecting || justFinishedSelectionRef.current) {
+      return;
+    }
+    
     if (isMultiSelectEnabled) {
       return;
     }
@@ -1283,7 +1314,7 @@ React.useEffect(() => {
       } else {
         selectNode(null);
       }
-  }, [isMultiSelectEnabled, setSelectedEdges, setSelectedNodes, selectNode]);
+  }, [isMultiSelectEnabled, isSelecting, setSelectedEdges, setSelectedNodes, selectNode]);
 
   // 获取画布中心位置的辅助函数
   const getCanvasCenterPosition = useCallback(() => {
@@ -1502,7 +1533,292 @@ React.useEffect(() => {
     }
   }, [isMultiSelectEnabled, toggleSelectedNode, selectNode, clearGroupSelection, setSelectedNodes]);
 
+  // 处理框选开始
+  const handlePaneMouseDown = useCallback((event) => {
+    // 只处理左键点击空白区域
+    if (event.button !== 0) return;
+    
+    // 检查是否点击在节点上、连接点上或 Handle 上（确保不干扰连接行为）
+    const target = event.target;
+    if (target.closest('.react-flow__node') || 
+        target.closest('.react-flow__handle') ||
+        target.closest('[data-port-type]') ||
+        target.classList.contains('react-flow__handle')) {
+      // 如果是 Handle，不处理，让 React Flow 处理连接
+      return;
+    }
+
+    // 检查是否点击在控件上（如变量管理器）
+    if (target.closest(`.${styles.variableManagerWrapper}`)) {
+      return;
+    }
+
+    // 获取画布容器位置
+    if (!containerRef.current || !reactFlowInstance) return;
+    
+    const containerRect = containerRef.current.getBoundingClientRect();
+    const startX = event.clientX - containerRect.left;
+    const startY = event.clientY - containerRect.top;
+    
+    // 使用 Zustand store 开始框选
+    startSelection({ x: startX, y: startY });
+  }, [reactFlowInstance, startSelection]);
+
+  // 检测框选区域内的节点（实时检测函数）
+  const detectNodesInSelectionBox = useCallback((box, reactFlowInstance) => {
+    if (!box || !reactFlowInstance || !containerRef.current) return [];
+    
+    const containerRect = containerRef.current.getBoundingClientRect();
+    
+    // 将屏幕坐标转换为画布坐标
+    const boxStart = reactFlowInstance.screenToFlowPosition({
+      x: containerRect.left + box.x,
+      y: containerRect.top + box.y,
+    });
+    
+    const boxEnd = reactFlowInstance.screenToFlowPosition({
+      x: containerRect.left + box.x + box.width,
+      y: containerRect.top + box.y + box.height,
+    });
+    
+    // 计算框选区域的边界
+    const minX = Math.min(boxStart.x, boxEnd.x);
+    const maxX = Math.max(boxStart.x, boxEnd.x);
+    const minY = Math.min(boxStart.y, boxEnd.y);
+    const maxY = Math.max(boxStart.y, boxEnd.y);
+    
+    // 使用 ReactFlow 的 getNodes() 获取最新的节点列表
+    const allNodes = reactFlowInstance.getNodes();
+    
+    // 找出在框选区域内的节点
+    const selectedNodeIds = allNodes
+      .filter((node) => {
+        const nodeX = node.position.x;
+        const nodeY = node.position.y;
+        
+        // 尝试从节点数据中获取尺寸
+        let nodeWidth = node.measured?.width || node.width;
+        let nodeHeight = node.measured?.height || node.height;
+        
+        // 如果节点没有尺寸信息，尝试从DOM获取
+        if (!nodeWidth || !nodeHeight) {
+          const nodeElement = document.querySelector(`[data-id="${node.id}"]`);
+          if (nodeElement) {
+            const rect = nodeElement.getBoundingClientRect();
+            // 将屏幕尺寸转换为画布尺寸
+            const viewport = reactFlowInstance.getViewport();
+            nodeWidth = rect.width / viewport.zoom;
+            nodeHeight = rect.height / viewport.zoom;
+          }
+        }
+        
+        // 如果仍然没有尺寸，使用默认值（根据节点类型）
+        if (!nodeWidth || !nodeHeight) {
+          // 根据节点类型设置默认尺寸
+          const defaultSizes = {
+            videoNode: { width: 360, height: 200 },
+            optionNode: { width: 360, height: 150 },
+            bgmNode: { width: 300, height: 120 },
+            cardNode: { width: 360, height: 200 },
+            jumpNode: { width: 300, height: 120 },
+            taskNode: { width: 380, height: 150 },
+            tipNode: { width: 300, height: 100 },
+          };
+          const defaults = defaultSizes[node.type] || { width: 200, height: 100 };
+          nodeWidth = nodeWidth || defaults.width;
+          nodeHeight = nodeHeight || defaults.height;
+        }
+        
+        // 检查节点是否与框选区域相交（部分重叠即选中）
+        const nodeRight = nodeX + nodeWidth;
+        const nodeBottom = nodeY + nodeHeight;
+        
+        return (
+          nodeX < maxX &&
+          nodeRight > minX &&
+          nodeY < maxY &&
+          nodeBottom > minY
+        );
+      })
+      .map((node) => node.id);
+    
+    return selectedNodeIds;
+  }, []);
+
+  // 处理框选移动
+  const handlePaneMouseMove = useCallback((event) => {
+    if (!isSelecting || !containerRef.current || !reactFlowInstance) return;
+    
+    const containerRect = containerRef.current.getBoundingClientRect();
+    const currentX = event.clientX - containerRect.left;
+    const currentY = event.clientY - containerRect.top;
+    
+    // 获取当前框选起始位置
+    const currentStart = useFlowStore.getState().selectionStart;
+    const width = currentX - currentStart.x;
+    const height = currentY - currentStart.y;
+    
+    // 计算当前框选矩形（不等待状态更新，直接计算）
+    const currentBox = {
+      x: width < 0 ? currentX : currentStart.x,
+      y: height < 0 ? currentY : currentStart.y,
+      width: Math.abs(width),
+      height: Math.abs(height),
+    };
+    
+    // 使用 Zustand store 更新框选矩形
+    updateSelection({ x: currentX, y: currentY });
+    
+    // 实时检测并选中框选区域内的节点（矩形一框到节点就立即选中，且保持选中状态）
+    if (currentBox.width > 5 && currentBox.height > 5) {
+      const newlySelectedNodeIds = detectNodesInSelectionBox(currentBox, reactFlowInstance);
+      
+      // 更新累积选中列表（一旦节点被框选到，就加入累积列表）
+      if (newlySelectedNodeIds.length > 0) {
+        updateAccumulatedSelection(newlySelectedNodeIds);
+      }
+      
+      // 获取累积选中的节点列表（包括之前框选到的节点）
+      const allAccumulatedIds = useFlowStore.getState().accumulatedSelectedNodeIds || [];
+      const finalSelectedIds = allAccumulatedIds.length > 0 
+        ? allAccumulatedIds 
+        : newlySelectedNodeIds;
+      
+      // 实时更新选中状态，并立即同步到 ReactFlow
+      setSelectedNodes(finalSelectedIds);
+      if (finalSelectedIds.length === 1) {
+        selectNode(finalSelectedIds[0]);
+      } else {
+        selectNode(null);
+      }
+      
+      // 立即更新 ReactFlow 节点选中状态，确保节点立即显示为选中状态
+      // 累积选中的节点都保持选中状态，即使矩形移开
+      const allNodes = reactFlowInstance.getNodes();
+      const updatedNodes = allNodes.map((node) => ({
+        ...node,
+        selected: finalSelectedIds.includes(node.id), // 累积选中的节点都显示为选中
+      }));
+      reactFlowInstance.setNodes(updatedNodes);
+    }
+  }, [isSelecting, reactFlowInstance, detectNodesInSelectionBox, setSelectedNodes, selectNode, updateSelection, updateAccumulatedSelection]);
+
+  // 处理框选结束
+  const handlePaneMouseUp = useCallback((event) => {
+    // 阻止事件冒泡，防止触发 onPaneClick
+    event?.stopPropagation?.();
+    event?.preventDefault?.();
+    
+    if (!isSelecting || !reactFlowInstance) {
+      cancelSelection();
+      return;
+    }
+
+    // 如果框选矩形太小，忽略（可能是误触），保持当前选择状态不变
+    if (!storeSelectionBox || storeSelectionBox.width < 5 || storeSelectionBox.height < 5) {
+      cancelSelection();
+      return;
+    }
+
+    // 使用累积选中的节点列表（拖动过程中累积的所有节点）
+    // 优先使用累积列表，如果没有则检测当前框选区域内的节点
+    let finalSelectedNodeIds = [];
+    if (accumulatedSelectedNodeIds && accumulatedSelectedNodeIds.length > 0) {
+      finalSelectedNodeIds = accumulatedSelectedNodeIds;
+    } else {
+      finalSelectedNodeIds = detectNodesInSelectionBox(storeSelectionBox, reactFlowInstance);
+    }
+    
+    console.log('框选结束，累积选中节点:', finalSelectedNodeIds);
+    
+    // 设置标记：刚完成框选，在短时间内忽略 onSelectionChange 和 useEffect 的清空操作
+    justFinishedSelectionRef.current = true;
+    
+    // 使用 Zustand store 完成框选并更新选中状态（传入累积的节点列表）
+    finishSelection(finalSelectedNodeIds);
+    
+    if (finalSelectedNodeIds.length > 0) {
+      // 如果选中了多个节点（2个或以上），自动启用多选模式
+      if (finalSelectedNodeIds.length > 1 && !isMultiSelectEnabled) {
+        toggleMultiSelect();
+        console.log('自动启用多选模式，选中了', finalSelectedNodeIds.length, '个节点');
+      }
+      
+      // 使用 ReactFlow API 直接设置节点选中状态，确保 ReactFlow 内部状态同步
+      const allNodes = reactFlowInstance.getNodes();
+      const updatedNodes = allNodes.map((node) => ({
+        ...node,
+        selected: finalSelectedNodeIds.includes(node.id),
+      }));
+      reactFlowInstance.setNodes(updatedNodes);
+      
+      console.log('框选完成，已选中节点:', finalSelectedNodeIds.length, '个', finalSelectedNodeIds);
+    }
+    
+    // 延迟清除标记，确保 onSelectionChange 和 useEffect 不会立即清空选择
+    setTimeout(() => {
+      justFinishedSelectionRef.current = false;
+      console.log('框选标记已清除');
+    }, 500); // 增加到 500ms，确保有足够时间
+  }, [isSelecting, storeSelectionBox, accumulatedSelectedNodeIds, reactFlowInstance, detectNodesInSelectionBox, finishSelection, cancelSelection, isMultiSelectEnabled, toggleMultiSelect]);
+
+  // 处理全局鼠标移动和抬起（确保在画布外也能继续框选）
+  React.useEffect(() => {
+    const handleGlobalMouseMove = (event) => {
+      if (isSelecting && containerRef.current) {
+        // 检查是否在 Handle 上，如果是则不处理（让 React Flow 处理连接）
+        const target = event.target;
+        if (target && (target.closest('.react-flow__handle') || 
+            target.closest('[data-port-type]'))) {
+          return; // 不处理，让 React Flow 处理连接
+        }
+        handlePaneMouseMove(event);
+      }
+    };
+
+    const handleGlobalMouseUp = (event) => {
+      if (isSelecting) {
+        // 检查是否在 Handle 上，如果是则不处理（让 React Flow 处理连接）
+        const target = event.target;
+        if (target && (target.closest('.react-flow__handle') || 
+            target.closest('[data-port-type]'))) {
+          return; // 不处理，让事件继续传播到 React Flow
+        }
+        
+        // 阻止事件冒泡，防止触发其他点击事件
+        event?.stopPropagation?.();
+        event?.preventDefault?.();
+        
+        if (storeSelectionBox && storeSelectionBox.width > 0 && storeSelectionBox.height > 0 && reactFlowInstance) {
+          // 调用框选结束处理
+          handlePaneMouseUp(event);
+        } else {
+          // 如果开始框选但没有框选矩形，直接取消框选
+          cancelSelection();
+        }
+      }
+    };
+
+    if (isSelecting) {
+      window.addEventListener('mousemove', handleGlobalMouseMove);
+      window.addEventListener('mouseup', handleGlobalMouseUp);
+    }
+
+    return () => {
+      window.removeEventListener('mousemove', handleGlobalMouseMove);
+      window.removeEventListener('mouseup', handleGlobalMouseUp);
+    };
+  }, [isSelecting, storeSelectionBox, reactFlowInstance, handlePaneMouseMove, handlePaneMouseUp, cancelSelection]);
+
   const handlePaneClick = useCallback((event) => {
+    // 如果正在框选或刚完成框选，不处理点击事件（避免干扰框选）
+    if (isSelecting || justFinishedSelectionRef.current) {
+      event?.preventDefault?.();
+      event?.stopPropagation?.();
+      return;
+    }
+    
+    
     if (isMultiSelectEnabled) {
       event?.preventDefault?.();
       event?.stopPropagation?.();
@@ -1514,7 +1830,7 @@ React.useEffect(() => {
     clearGroupSelection();
     // 关闭右键菜单
     setContextMenu(null);
-  }, [isMultiSelectEnabled, setSelectedNodes, selectNode, clearGroupSelection]);
+  }, [isMultiSelectEnabled, isSelecting, setSelectedNodes, selectNode, clearGroupSelection]);
 
   // 处理画布右键菜单
   const handlePaneContextMenu = useCallback((event) => {
@@ -1562,9 +1878,6 @@ React.useEffect(() => {
       case 'card':
         addCardNode({ nodeName: `卡牌_${Date.now()}` }, position);
         break;
-      case 'tip':
-        addTipNode({ tipText: `提示_${Date.now()}` }, position);
-        break;
       case 'jump':
         addJumpNode({ jumpPointId: `跳转点_${Date.now()}` }, position);
         break;
@@ -1574,7 +1887,7 @@ React.useEffect(() => {
       default:
         break;
     }
-  }, [addNode, addOptionNode, addBgmNode, addCardNode, addJumpNode, addTaskNode, addTipNode, handleCloseContextMenu]);
+  }, [addNode, addOptionNode, addBgmNode, addCardNode, addJumpNode, addTaskNode, handleCloseContextMenu]);
 
   const handleMultiSelectButtonClick = useCallback(() => {
     if (isMultiSelectEnabled) {
@@ -1591,6 +1904,116 @@ React.useEffect(() => {
     }
     setPanLocked(false);
   }, [isMultiSelectEnabled, selectedNodeIds, selectedNodeId, toggleMultiSelect, createGroup, setSelectedNodes, setPanLocked]);
+
+  // 实时搜索处理（当输入框内容变化时自动触发）
+  const handleSearchInputChange = useCallback((value) => {
+    setSearchQuery(value);
+    
+    if (!value.trim()) {
+      setSearchResults([]);
+      return;
+    }
+    
+    const query = value.trim().toLowerCase();
+    const results = reactFlowNodes.filter((node) => {
+      // 匹配节点名称
+      const nodeName = (node.data?.nodeName || '').toLowerCase();
+      // 匹配选项节点的选项文本
+      const optionText = (node.data?.optionText || '').toLowerCase();
+      // 匹配节点ID
+      const nodeId = (node.id || '').toLowerCase();
+      // 匹配节点类型
+      const nodeType = (node.type || '').toLowerCase();
+      
+      // 模糊匹配：节点名称、选项文本、节点ID或节点类型
+      return nodeName.includes(query) || 
+             optionText.includes(query) || 
+             nodeId.includes(query) || 
+             nodeType.includes(query);
+    });
+    
+    setSearchResults(results);
+    
+    // 如果存在匹配节点，自动将视角移动到第一个匹配节点并居中显示
+    if (results.length > 0 && reactFlowInstance) {
+      const matchedNode = results[0];
+      // 获取节点位置
+      const nodePosition = matchedNode.position;
+      
+      // 计算节点中心位置（考虑节点尺寸）
+      let nodeCenterX = nodePosition.x;
+      let nodeCenterY = nodePosition.y;
+      
+      // 尝试获取节点实际尺寸
+      const nodeElement = document.querySelector(`[data-id="${matchedNode.id}"]`);
+      if (nodeElement) {
+        const rect = nodeElement.getBoundingClientRect();
+        const viewport = reactFlowInstance.getViewport();
+        // 将屏幕尺寸转换为画布尺寸
+        const nodeWidth = rect.width / viewport.zoom;
+        const nodeHeight = rect.height / viewport.zoom;
+        // 计算节点中心点
+        nodeCenterX = nodePosition.x + nodeWidth / 2;
+        nodeCenterY = nodePosition.y + nodeHeight / 2;
+      } else {
+        // 如果无法获取节点尺寸，使用默认尺寸估算
+        const defaultSizes = {
+          videoNode: { width: 360, height: 200 },
+          optionNode: { width: 360, height: 150 },
+          bgmNode: { width: 300, height: 120 },
+          cardNode: { width: 360, height: 200 },
+          jumpNode: { width: 300, height: 120 },
+          taskNode: { width: 380, height: 150 },
+          tipNode: { width: 300, height: 100 },
+        };
+        const defaults = defaultSizes[matchedNode.type] || { width: 200, height: 100 };
+        nodeCenterX = nodePosition.x + defaults.width / 2;
+        nodeCenterY = nodePosition.y + defaults.height / 2;
+      }
+      
+      // 使用 setCenter 将节点居中显示在画布可视区域的正中间
+      // duration 设置为 300ms 实现平滑过渡
+      reactFlowInstance.setCenter(nodeCenterX, nodeCenterY, { 
+        zoom: reactFlowInstance.getZoom(), // 保持当前缩放级别
+        duration: 300 // 平滑过渡动画
+      });
+      
+      // 选中匹配的节点
+      if (results.length === 1) {
+        selectNode(matchedNode.id);
+        setSelectedNodes([matchedNode.id]);
+      } else {
+        // 多个结果时，选中第一个并显示所有结果
+        const resultIds = results.map((node) => node.id);
+        setSelectedNodes(resultIds);
+        selectNode(matchedNode.id);
+      }
+    } else if (results.length === 0) {
+      // 没有匹配结果时，清除选择
+      setSelectedNodes([]);
+      selectNode(null);
+    }
+  }, [reactFlowNodes, reactFlowInstance, selectNode, setSelectedNodes]);
+  
+  // 处理搜索（保留用于搜索按钮和回车键）
+  const handleSearch = useCallback(() => {
+    handleSearchInputChange(searchQuery);
+  }, [searchQuery, handleSearchInputChange]);
+  
+  // 处理搜索输入框回车
+  const handleSearchKeyPress = useCallback((e) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  }, [handleSearch]);
+  
+  // 清空搜索
+  const handleClearSearch = useCallback(() => {
+    setSearchQuery('');
+    setSearchResults([]);
+    setSelectedNodes([]);
+    selectNode(null);
+  }, [setSelectedNodes, selectNode]);
 
   const handleJoinGroupClick = useCallback(() => {
     if (!activeGroup || pendingJoinNodeIds.length === 0) {
@@ -4493,7 +4916,92 @@ React.useEffect(() => {
           加入组合
         </Button>
         </div>
-        <div ref={containerRef} style={{ position: 'relative', width: '100%', height: '100%' }}>
+        {/* 搜索框 */}
+        <div className={styles.searchContainer}>
+          <label className={styles.searchLabel}>搜索:</label>
+          <input
+            type="text"
+            className={styles.searchInput}
+            placeholder="搜索节点名称、选项文本、ID或类型..."
+            value={searchQuery}
+            onChange={(e) => handleSearchInputChange(e.target.value)}
+            onKeyPress={handleSearchKeyPress}
+          />
+          <Button
+            className={styles.searchButton}
+            onClick={handleSearch}
+          >
+            搜索
+          </Button>
+          {searchQuery && (
+            <Button
+              className={styles.clearButton}
+              onClick={handleClearSearch}
+            >
+              清除
+            </Button>
+          )}
+        </div>
+        {searchResults.length > 0 && (
+          <div className={styles.searchResults}>
+            找到 {searchResults.length} 个匹配的节点
+          </div>
+        )}
+        <div 
+          ref={containerRef} 
+          style={{ position: 'relative', width: '100%', height: '100%' }}
+          onMouseDown={(e) => {
+            // 检查是否点击在 Handle 上，如果是则不处理框选（让 React Flow 处理连接）
+            const target = e.target;
+            if (target.closest('.react-flow__handle') || 
+                target.closest('[data-port-type]') ||
+                target.classList.contains('react-flow__handle')) {
+              return; // 不处理，让事件继续传播到 React Flow
+            }
+            // 检查是否点击在节点上，如果是则不处理框选
+            if (target.closest('.react-flow__node')) {
+              return;
+            }
+            // 检查是否点击在控件上（如变量管理器）
+            if (target.closest(`.${styles.variableManagerWrapper}`)) {
+              return;
+            }
+            // 处理框选开始
+            handlePaneMouseDown(e);
+          }}
+          onMouseMove={(e) => {
+            // 如果正在框选，处理框选移动
+            if (isSelecting) {
+              // 检查是否在 Handle 上，如果是则不处理（让 React Flow 处理连接）
+              const target = e.target;
+              if (target.closest('.react-flow__handle') || 
+                  target.closest('[data-port-type]')) {
+                return; // 不处理，让 React Flow 处理连接
+              }
+              handlePaneMouseMove(e);
+            }
+          }}
+          onMouseUp={(e) => {
+            // 如果正在框选，处理框选结束
+            if (isSelecting) {
+              // 检查是否在 Handle 上，如果是则不处理（让 React Flow 处理连接）
+              const target = e.target;
+              if (target.closest('.react-flow__handle') || 
+                  target.closest('[data-port-type]')) {
+                return; // 不处理，让事件继续传播到 React Flow
+              }
+              handlePaneMouseUp(e);
+            }
+          }}
+          onClickCapture={(e) => {
+            // 在捕获阶段阻止点击事件，如果刚完成框选
+            if (justFinishedSelectionRef.current) {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log('阻止点击事件，保持框选结果');
+            }
+          }}
+        >
         {/* 变量管理器 - 固定在画布左上角 */}
         <div className={styles.variableManagerWrapper}>
           <VariableManager />
@@ -4504,9 +5012,6 @@ React.useEffect(() => {
           edges={reactFlowEdges}
           onNodesChange={handleNodesChange}
           onEdgesChange={handleEdgesChange}
-          onConnect={onConnect}
-          onConnectStart={handleConnectStart}
-          onConnectEnd={handleConnectStop}
           onNodeClick={handleNodeClick}
           onSelectionChange={onSelectionChange}
           onPaneClick={handlePaneClick}
@@ -4522,6 +5027,9 @@ React.useEffect(() => {
           nodesDraggable={true}
           nodesConnectable={true}
           connectionLineType="smooth"
+          onConnect={onConnect}
+          onConnectStart={handleConnectStart}
+          onConnectEnd={handleConnectStop}
           zoomOnScroll={canZoomOnScroll}
           preventScrolling={false}
           deleteKeyCode="Backspace"
@@ -4609,6 +5117,20 @@ React.useEffect(() => {
           </svg>
         )}
         
+        {/* 框选矩形 */}
+        {storeSelectionBox && storeSelectionBox.width > 0 && storeSelectionBox.height > 0 && (
+          <div
+            className={styles.selectionBox}
+            style={{
+              left: storeSelectionBox.x,
+              top: storeSelectionBox.y,
+              width: storeSelectionBox.width,
+              height: storeSelectionBox.height,
+            }}
+          />
+        )}
+        
+
         {/* 删除区域 */}
         <div 
           className={`${styles.deleteZone} ${isDraggingOverDelete ? styles.deleteZoneActive : ''} ${(draggingNode || selectedEdges.length > 0 || isDraggingEdge) ? styles.deleteZoneVisible : ''}`}
@@ -4636,7 +5158,6 @@ React.useEffect(() => {
               { key: 'option', label: '添加选项节点' },
               { key: 'bgm', label: '添加BGM节点' },
               { key: 'card', label: '添加卡牌节点' },
-              { key: 'tip', label: '添加提示节点' },
               { key: 'jump', label: '添加跳转节点' },
               { key: 'task', label: '添加任务节点' },
             ],

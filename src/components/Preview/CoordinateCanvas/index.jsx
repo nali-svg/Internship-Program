@@ -213,10 +213,14 @@ export default function CoordinateCanvas() {
     setScale(prev => Math.max(0.1, Math.min(5, prev * delta)));
   }, []);
 
-  // 处理拖拽开始
+  // 处理拖拽开始（只允许中键）
   const handleMouseDown = (e) => {
-    setIsDragging(true);
-    setDragStart({ x: e.clientX - offset.x, y: e.clientY - offset.y });
+    // 只允许鼠标中键（button === 1）进行拖拽
+    if (e.button === 1) {
+      e.preventDefault(); // 防止中键的默认行为（打开链接等）
+      setIsDragging(true);
+      setDragStart({ x: e.clientX - offset.x, y: e.clientY - offset.y });
+    }
   };
 
   // 处理拖拽移动

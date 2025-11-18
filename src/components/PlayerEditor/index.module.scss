@@ -12,6 +12,98 @@
     }
 }
 
+/* 搜索框容器 */
+.searchContainer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background-color: #f0f0f0; /* 浅灰色背景，与整体界面一致 */
+    border-top: 1px solid #e0e0e0;
+}
+
+/* 搜索标签 */
+.searchLabel {
+    color: #666; /* 深灰色文字 */
+    font-size: 14px;
+    margin: 0;
+    white-space: nowrap;
+}
+
+/* 搜索输入框 */
+.searchInput {
+    flex: 1;
+    padding: 8px 12px;
+    background-color: #ffffff; /* 白色背景 */
+    border: 1px solid #0078d4; /* 蓝色边框 */
+    border-radius: 4px;
+    color: #333; /* 深色文字 */
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    
+    &:focus {
+        border-color: #40a9ff; /* 更亮的蓝色 */
+        box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.1);
+    }
+    
+    &::placeholder {
+        color: #999;
+    }
+}
+
+/* 搜索按钮 */
+.searchButton {
+    padding: 8px 16px;
+    background-color: #ffffff; /* 白色背景 */
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    color: #666; /* 深灰色文字 */
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    
+    &:hover {
+        background-color: #f5f5f5;
+        border-color: #40a9ff;
+        color: #0078d4;
+    }
+    
+    &:active {
+        background-color: #e6e6e6;
+    }
+}
+
+/* 清除按钮 */
+.clearButton {
+    padding: 8px 12px;
+    background-color: #ffffff;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    color: #666;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    
+    &:hover {
+        background-color: #f5f5f5;
+        border-color: #ff4d4f;
+        color: #ff4d4f;
+    }
+}
+
+/* 搜索结果提示 */
+.searchResults {
+    padding: 8px 16px;
+    background-color: #f0f0f0;
+    color: #666;
+    font-size: 12px;
+    border-top: 1px solid #e0e0e0;
+}
+
+
 /* 变量管理器包装器 - 固定在画布左上角 */
 .variableManagerWrapper {
     position: absolute;
@@ -22,6 +114,21 @@
     z-index: 10;
     box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
     pointer-events: auto;
+}
+
+/* 框选矩形样式 - Windows桌面框选样式 */
+.selectionBox {
+    position: absolute;
+    border: 1px dashed #0078d4;
+    background-color: rgba(0, 120, 212, 0.1);
+    pointer-events: none;
+    z-index: 1000;
+    box-sizing: border-box;
+    /* Windows 桌面框选样式优化 */
+    border-style: dashed;
+    border-width: 1px;
+    /* 确保边框清晰可见 */
+    outline: none;
 }
 
 /* 删除区域样式 */

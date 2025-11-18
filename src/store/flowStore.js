@@ -20,6 +20,13 @@ const useFlowStore = create((set, get) => ({
   // 多选节点 ID 列表
   selectedNodeIds: [],
 
+  // 框选状态
+  isSelecting: false, // 是否正在框选（鼠标按下并拖动中）
+  selectionStart: { x: 0, y: 0 }, // 框选起始坐标（鼠标按下时）
+  selectionEnd: { x: 0, y: 0 }, // 框选结束坐标（鼠标拖动中实时更新）
+  selectionBox: null, // 框选矩形数据 { x, y, width, height }
+  accumulatedSelectedNodeIds: [], // 累积选中的节点ID列表（拖动过程中累积）
+
   // 当前选中的分组 ID
   selectedGroupId: null,
 
@@ -477,6 +484,99 @@ const useFlowStore = create((set, get) => ({
     set((state) => ({
       isMultiSelectEnabled: !state.isMultiSelectEnabled,
     }));
+  },
+
+  /**
+   * 开始框选
+   * @param {Object} start - 起始坐标 { x, y }
+   */
+  startSelection: (start) => {
+    set({
+      isSelecting: true,
+      selectionStart: start,
+      selectionEnd: start,
+      selectionBox: { x: start.x, y: start.y, width: 0, height: 0 },
+      accumulatedSelectedNodeIds: [], // 重置累积选中列表
+    });
+  },
+
+  /**
+   * 更新框选矩形
+   * @param {Object} end - 结束坐标 { x, y }
+   */
+  updateSelection: (end) => {
+    set((state) => {
+      const startX = state.selectionStart.x;
+      const startY = state.selectionStart.y;
+      const width = end.x - startX;
+      const height = end.y - startY;
+      
+      return {
+        selectionEnd: end,
+        selectionBox: {
+          x: width < 0 ? end.x : startX,
+          y: height < 0 ? end.y : startY,
+          width: Math.abs(width),
+          height: Math.abs(height),
+        },
+      };
+    });
+  },
+
+  /**
+   * 更新累积选中的节点（拖动过程中调用）
+   * @param {Array} newlySelectedNodeIds - 当前框选区域内的节点ID列表
+   */
+  updateAccumulatedSelection: (newlySelectedNodeIds = []) => {
+    set((state) => {
+      const normalized = Array.isArray(newlySelectedNodeIds)
+        ? Array.from(new Set(newlySelectedNodeIds.filter(Boolean)))
+        : [];
+      
+      // 累积选中：将新选中的节点添加到累积列表中（去重）
+      const currentAccumulated = new Set(state.accumulatedSelectedNodeIds || []);
+      normalized.forEach(id => currentAccumulated.add(id));
+      
+      return {
+        accumulatedSelectedNodeIds: Array.from(currentAccumulated),
+      };
+    });
+  },
+
+  /**
+   * 结束框选并更新选中节点
+   * @param {Array} selectedNodeIds - 被选中的节点ID列表（最终确认）
+   */
+  finishSelection: (selectedNodeIds = []) => {
+    set((state) => {
+      // 使用累积选中的节点，如果没有提供参数则使用累积列表
+      const finalSelected = Array.isArray(selectedNodeIds) && selectedNodeIds.length > 0
+        ? Array.from(new Set(selectedNodeIds.filter(Boolean)))
+        : Array.from(new Set((state.accumulatedSelectedNodeIds || []).filter(Boolean)));
+      
+      return {
+        isSelecting: false,
+        selectionStart: { x: 0, y: 0 },
+        selectionEnd: { x: 0, y: 0 },
+        selectionBox: null,
+        accumulatedSelectedNodeIds: [],
+        selectedNodeIds: finalSelected,
+        selectedNodeId: finalSelected.length === 1 ? finalSelected[0] : null,
+      };
+    });
+  },
+
+  /**
+   * 取消框选（不清空已选中的节点）
+   */
+  cancelSelection: () => {
+    set({
+      isSelecting: false,
+      selectionStart: { x: 0, y: 0 },
+      selectionEnd: { x: 0, y: 0 },
+      selectionBox: null,
+      accumulatedSelectedNodeIds: [],
+    });
   },
 
   /**

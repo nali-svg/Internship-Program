@@ -343,12 +343,11 @@ export default function CardNodeInspector({ nodeId, data }) {
                   value={effect.variableName || ''}
                   onChange={(e) => handleUpdateEffect(effect.id, 'variableName', e.target.value)}
                   placeholder="变量名"
-                  style={{ flex: 1 }}
                 />
                 <select 
                   value={effect.operation || 'Set'}
                   onChange={(e) => handleUpdateEffect(effect.id, 'operation', e.target.value)}
-                  style={{ flex: '0 0 auto', width: '100px' }}
+                  style={{ width: '90px' }}
                 >
                   <option value="Set">Set</option>
                   <option value="Add">Add</option>
@@ -361,7 +360,6 @@ export default function CardNodeInspector({ nodeId, data }) {
                   value={effect.value || ''}
                   onChange={(e) => handleUpdateEffect(effect.id, 'value', e.target.value)}
                   placeholder="值"
-                  style={{ flex: 1 }}
                 />
                 <button 
                   className={styles.removeBtn}
@@ -394,12 +392,11 @@ export default function CardNodeInspector({ nodeId, data }) {
                   value={condition.leftValue || ''}
                   onChange={(e) => handleUpdateCondition(condition.id, 'leftValue', e.target.value)}
                   placeholder="左值"
-                  style={{ flex: 1 }}
                 />
                 <select 
                   value={condition.operator || 'Equals'}
                   onChange={(e) => handleUpdateCondition(condition.id, 'operator', e.target.value)}
-                  style={{ flex: '0 0 auto', width: '120px' }}
+                  style={{ width: '110px' }}
                 >
                   <option value="Equals">Equals</option>
                   <option value="NotEquals">NotEquals</option>
@@ -413,7 +410,6 @@ export default function CardNodeInspector({ nodeId, data }) {
                   value={condition.rightValue || ''}
                   onChange={(e) => handleUpdateCondition(condition.id, 'rightValue', e.target.value)}
                   placeholder="右值"
-                  style={{ flex: 1 }}
                 />
                 <button 
                   className={styles.removeBtn}

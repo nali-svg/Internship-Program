@@ -11,7 +11,7 @@ export default function TipNode({ data }) {
 
   return (
     <div className={styles.tipNode}>
-      <Handle type="target" position={Position.Top} className={styles.handle} />
+      <Handle type="target" position={Position.Top} className={styles.handle} isConnectable={true} />
       <div className={styles.header}>{title}</div>
       <div className={styles.body}>
         <div className={styles.tipText}>{tipText || '（无提示文本）'}</div>
@@ -24,7 +24,7 @@ export default function TipNode({ data }) {
           {isResetToCP && <span className={styles.badge}>重置到CP</span>}
         </div>
       </div>
-      <Handle type="source" position={Position.Bottom} className={styles.handle} />
+      <Handle type="source" position={Position.Bottom} className={styles.handle} isConnectable={true} />
     </div>
   );
 }

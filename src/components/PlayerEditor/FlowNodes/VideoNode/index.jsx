@@ -466,6 +466,8 @@ export default function VideoNode({ id, data, selected }) {
               id="input"
               className={`${styles.portHandle} ${styles.inputHandle}`}
               isConnectable={true}
+              data-port-type="in"
+              data-port-id="input"
               style={{
                 background: '#1890ff',
                 width: 14,
@@ -526,6 +528,8 @@ export default function VideoNode({ id, data, selected }) {
               id="output"
               className={`${styles.portHandle} ${styles.outputHandle}`}
               isConnectable={true}
+              data-port-type="out"
+              data-port-id="output"
               style={{
                 background: '#52c41a',
                 width: 14,
