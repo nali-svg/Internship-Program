@@ -3,7 +3,7 @@ import { Button, Tooltip, Dropdown, Menu, Modal, Input, Switch, Popover } from '
 import { DownOutlined, PlusOutlined, DeleteOutlined, CheckOutlined, NodeIndexOutlined, SplitCellsOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import {
   ReactFlow,
-  MiniMap,
+  MiniMap,  
   Controls,
   Background,
   useNodesState,
@@ -29,7 +29,7 @@ import CardNode from './FlowNodes/CardNode';
 import JumpNode from './FlowNodes/JumpNode';
 import TaskNode from './FlowNodes/TaskNode';
 import TipNode from './FlowNodes/TipNode';
-import GroupOverlayLayer from './GroupOverlay';
+import GroupNode from './FlowNodes/GroupNode';
 
 // 节点类型映射
 const nodeTypes = {
@@ -40,6 +40,7 @@ const nodeTypes = {
   jumpNode: JumpNode,
   taskNode: TaskNode,
   tipNode: TipNode,
+  groupNode: GroupNode,
 };
 
 
@@ -849,11 +850,32 @@ export default function PlayerEditor({ onNodeSelect }) {
   const [searchQuery, setSearchQuery] = React.useState('');
   const [searchResults, setSearchResults] = React.useState([]);
   const activeGroup = useMemo(() => {
-    if (!Array.isArray(groups) || !selectedGroupId) {
+    if (!selectedGroupId) {
       return null;
     }
-    return groups.find((group) => group.id === selectedGroupId) || null;
-  }, [groups, selectedGroupId]);
+    // 首先在 groups 数组中查找
+    const groupFromArray = Array.isArray(groups) ? groups.find((group) => group.id === selectedGroupId) : null;
+    if (groupFromArray) {
+      return groupFromArray;
+    }
+    // 如果找不到，可能是 groupNode 的 ID，尝试在 nodes 中查找对应的 groupNode
+    const groupNode = nodes.find((node) => node.id === selectedGroupId && node.type === 'groupNode');
+    if (groupNode) {
+      // 返回一个兼容的对象格式
+      return {
+        id: groupNode.id,
+        title: groupNode.data?.title || `${groupNode.data?.childCount || 0}个节点`,
+        childNodeIds: nodes.filter((node) => node.parentId === groupNode.id).map((node) => node.id),
+        bounds: {
+          x: groupNode.position?.x || 0,
+          y: groupNode.position?.y || 0,
+          width: groupNode.data?.width || 0,
+          height: groupNode.data?.height || 0,
+        },
+      };
+    }
+    return null;
+  }, [groups, selectedGroupId, nodes]);
 
   const pendingJoinNodeIds = useMemo(() => {
     if (!activeGroup || !Array.isArray(selectedNodeIds)) {
@@ -1126,6 +1148,34 @@ React.useEffect(() => {
         return;
       }
 
+      // 检查是否是父节点（groupNode类型）
+      // 如果是父节点，React Flow 会自动处理子节点的跟随移动（通过 parentId）
+      // 但我们需要更新父节点位置到 store
+      if (nodeBefore.type === 'groupNode') {
+        // 更新父节点位置
+        workingNodes = workingNodes.map((node) => {
+          if (node.id === nodeId) {
+            nodesChanged = true;
+            return {
+              ...node,
+              position: { x: nodeAfter.x, y: nodeAfter.y },
+            };
+          }
+          return node;
+        });
+        return;
+      }
+
+      // 检查是否是子节点（有 parentId）
+      // 如果是子节点，React Flow 会自动处理相对位置
+      // 我们不需要手动处理
+      if (nodeBefore.parentId) {
+        // 子节点移动时，React Flow 会自动处理相对位置
+        // 只需要更新子节点位置即可
+        return;
+      }
+
+      // 对于没有 parentId 的普通节点，使用旧的 groups 系统处理
       const deltaX = nodeAfter.x - (nodeBefore.position?.x ?? 0);
       const deltaY = nodeAfter.y - (nodeBefore.position?.y ?? 0);
       if (deltaX === 0 && deltaY === 0) {
@@ -1144,8 +1194,8 @@ React.useEffect(() => {
               nodesChanged = true;
           updatedNodes.push(node.id);
               return {
-            ...node,
-            position: { x: nodeAfter.x, y: nodeAfter.y },
+                ...node,
+                position: { x: nodeAfter.x, y: nodeAfter.y },
               };
             }
         if (childSet.has(node.id)) {
@@ -1153,7 +1203,7 @@ React.useEffect(() => {
               nodesChanged = true;
           updatedNodes.push(node.id);
               return {
-            ...node,
+                ...node,
                 position: {
               x: basePos.x + deltaX,
               y: basePos.y + deltaY,
@@ -1525,13 +1575,25 @@ React.useEffect(() => {
     if (isMultiSelectEnabled) {
       event.preventDefault();
       event.stopPropagation();
-      toggleSelectedNode(node.id);
+      // 如果点击的是 groupNode，设置 selectedGroupId（不切换 groupNode 的选中状态）
+      if (node.type === 'groupNode') {
+        selectGroup(node.id);
+        // 不调用 toggleSelectedNode，保持 groupNode 不被选中，只设置 selectedGroupId
+        // 这样可以让其他选中的节点加入这个分组
+      } else {
+        // 普通节点才切换选中状态
+        toggleSelectedNode(node.id);
+      }
     } else {
       clearGroupSelection();
       selectNode(node.id);
       setSelectedNodes([node.id]);
+      // 如果点击的是 groupNode，设置 selectedGroupId
+      if (node.type === 'groupNode') {
+        selectGroup(node.id);
+      }
     }
-  }, [isMultiSelectEnabled, toggleSelectedNode, selectNode, clearGroupSelection, setSelectedNodes]);
+  }, [isMultiSelectEnabled, toggleSelectedNode, selectNode, clearGroupSelection, setSelectedNodes, selectGroup]);
 
   // 处理框选开始
   const handlePaneMouseDown = useCallback((event) => {
@@ -2019,9 +2081,32 @@ React.useEffect(() => {
     if (!activeGroup || pendingJoinNodeIds.length === 0) {
       return;
     }
+    // 执行加入组合操作
     addNodesToGroup(activeGroup.id, pendingJoinNodeIds);
-      setSelectedNodes([]);
-  }, [activeGroup, pendingJoinNodeIds, addNodesToGroup, setSelectedNodes]);
+    setSelectedNodes([]);
+    
+    // 确保释放所有拖拽锁定状态（在操作后释放，确保状态正确）
+    setPanLocked(false);
+    setDraggingNode(null);
+    setIsDraggingOverDelete(false);
+    
+    // 强制同步 React Flow 节点状态（确保节点更新后立即同步）
+    // 使用 setTimeout 确保 Zustand store 的状态更新完成后再同步
+    setTimeout(() => {
+      const currentNodes = useFlowStore.getState().nodes;
+      const selectedSet = new Set();
+      const nodesWithSelection = currentNodes.map((node) => ({
+        ...node,
+        selected: selectedSet.has(node.id),
+        // 确保保留所有必要的属性
+        draggable: node.draggable !== false,
+        selectable: node.selectable !== false,
+      }));
+      setReactFlowNodes(nodesWithSelection);
+      // 再次确保释放锁定状态（防止异步更新导致状态不一致）
+      setPanLocked(false);
+    }, 10);
+  }, [activeGroup, pendingJoinNodeIds, addNodesToGroup, setSelectedNodes, setPanLocked, setDraggingNode, setIsDraggingOverDelete, setReactFlowNodes]);
 
   // 处理删除区域鼠标进入
   const handleDeleteZoneEnter = () => {
@@ -5073,7 +5158,6 @@ React.useEffect(() => {
           />
           <FlowControls />
         </ReactFlow>
-        <GroupOverlayLayer />
 
         {/* 拖拽连线覆盖层 - 使用 fixed 定位在屏幕坐标系 */}
         {dragOverlayPath && (

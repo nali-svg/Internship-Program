@@ -20,13 +20,22 @@ export default function CardNodeInspector({ nodeId, data }) {
   // 文件输入引用
   const cardImageInputRef = useRef(null);
 
-  // 当外部data变化时，同步本地状态
+  // 初始化本地状态，确保外部 data 变化时同步到本地状态
   useEffect(() => {
     const textFields = ['nodeName', 'description', 'unavailableMessage'];
     setLocalInputs(prev => {
-      const newInputs = {};
+      const newInputs = { ...prev };
+      // 同步所有字段的值，确保外部更新能够反映到界面
       textFields.forEach(field => {
-        newInputs[field] = data[field] ?? '';
+        if (data[field] !== undefined) {
+          // 如果外部值与当前值不同，则更新（这样可以响应外部修改，如从画布上修改 nodeName）
+          if (newInputs[field] !== data[field]) {
+            newInputs[field] = data[field] || '';
+          }
+        } else if (newInputs[field] === undefined) {
+          // 如果字段不存在，初始化为空字符串
+          newInputs[field] = '';
+        }
       });
       return newInputs;
     });

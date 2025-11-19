@@ -792,29 +792,118 @@ const useFlowStore = create((set, get) => ({
       return;
     }
     set((state) => {
-      const layout = computeGroupLayout(state.nodes, ids);
+      // 为了正确计算布局，需要获取所有节点的绝对位置
+      // 如果节点已经是子节点，需要计算其绝对位置
+      const nodesWithAbsolutePositions = state.nodes.map((node) => {
+        if (ids.includes(node.id) && node.parentId) {
+          // 如果节点已经是子节点，计算绝对位置
+          const parent = state.nodes.find(n => n.id === node.parentId);
+          if (parent) {
+            return {
+              ...node,
+              position: {
+                x: (parent.position?.x || 0) + (node.position?.x || 0),
+                y: (parent.position?.y || 0) + (node.position?.y || 0),
+              },
+            };
+          }
+        }
+        return node;
+      });
+      
+      const layout = computeGroupLayout(nodesWithAbsolutePositions, ids);
       if (!layout) {
         return {};
       }
-      const groupId = options.id || `group_${Date.now()}`;
-      const title = options.title || `分组 (${ids.length})`;
-      const nextGroup = {
-        id: groupId,
-        title,
-        childNodeIds: [...ids],
-        bounds: {
-          x: layout.position.x,
-          y: layout.position.y,
+      
+      // 创建父节点ID（使用React Flow节点格式）
+      const parentNodeId = options.id || `node_group_${Date.now()}`;
+      const title = options.title || `${ids.length}个节点`;
+      
+      // 创建父节点（Group Node）- 可见的矩形框容器
+      const parentNode = {
+        id: parentNodeId,
+        type: 'groupNode',
+        position: layout.position,
+        data: {
+          id: parentNodeId.replace('node_', ''),
+          title: title,
+          childCount: ids.length,
           width: layout.width,
           height: layout.height,
         },
-        minWidth: layout.minWidth,
-        minHeight: layout.minHeight,
-        meta: options.meta || {},
+        style: {
+          width: layout.width,
+          height: layout.height,
+        },
+        // 父节点不能有parentId
+        parentId: undefined,
+        // 父节点可以选择和拖拽
+        selectable: true,
+        draggable: true,
+        // 确保父节点在正确的层级
+        zIndex: 1,
       };
+      
+      // 更新子节点：设置parentId，转换位置为相对位置，设置extent限制
+      // 注意：如果节点已经是其他节点的子节点，需要先获取其绝对位置
+      const updatedNodes = state.nodes.map((node) => {
+        if (ids.includes(node.id)) {
+          // 获取节点的绝对位置
+          // 如果节点已经有parentId，它的position是相对于原父节点的
+          // 我们需要找到原父节点来计算绝对位置
+          let absoluteX = node.position?.x || 0;
+          let absoluteY = node.position?.y || 0;
+          
+          if (node.parentId) {
+            // 如果节点已经是子节点，需要找到父节点来计算绝对位置
+            const currentParent = state.nodes.find(n => n.id === node.parentId);
+            if (currentParent) {
+              absoluteX = (currentParent.position?.x || 0) + absoluteX;
+              absoluteY = (currentParent.position?.y || 0) + absoluteY;
+            }
+          }
+          
+          // 计算相对于新父节点的位置
+          const relativePosition = {
+            x: absoluteX - layout.position.x,
+            y: absoluteY - layout.position.y,
+          };
+          
+          return {
+            ...node,
+            parentId: parentNodeId,
+            position: relativePosition,
+            // 限制子节点不能移出父节点（根据React Flow文档）
+            extent: 'parent',
+            // 确保子节点仍然可拖拽（在父节点内）
+            draggable: true,
+          };
+        }
+        return node;
+      });
+      
+      // 添加父节点到节点列表（父节点必须在子节点之前）
+      const allNodes = [parentNode, ...updatedNodes];
+      
       return {
-        groups: [...(state.groups || []), nextGroup],
-        selectedGroupId: groupId,
+        nodes: allNodes,
+        // 保留原有的groups系统（用于向后兼容）
+        groups: [...(state.groups || []), {
+          id: parentNodeId,
+          title,
+          childNodeIds: [...ids],
+          bounds: {
+            x: layout.position.x,
+            y: layout.position.y,
+            width: layout.width,
+            height: layout.height,
+          },
+          minWidth: layout.minWidth,
+          minHeight: layout.minHeight,
+          meta: options.meta || {},
+        }],
+        selectedGroupId: parentNodeId,
       };
     });
   },
@@ -957,21 +1046,150 @@ const useFlowStore = create((set, get) => ({
       return;
     }
     set((state) => {
+      // 查找目标分组（可能是 group 对象或 groupNode 节点）
       const targetGroup = (state.groups || []).find((group) => group.id === groupId);
-      if (!targetGroup) {
+      const parentNode = state.nodes.find((node) => node.id === groupId && node.type === 'groupNode');
+      
+      if (!targetGroup && !parentNode) {
         return {};
       }
-      const existingIds = new Set(targetGroup.childNodeIds || []);
+      
+      // 确定父节点ID（如果是 groupNode，直接使用；如果是 group，需要找到对应的 groupNode）
+      const parentNodeId = parentNode ? groupId : (state.nodes.find((node) => node.type === 'groupNode' && node.data?.id === groupId.replace('node_', ''))?.id || groupId);
+      
+      // 获取现有的子节点ID列表
+      const existingChildIds = targetGroup ? (targetGroup.childNodeIds || []) : 
+        (parentNode ? state.nodes.filter((node) => node.parentId === parentNodeId).map((node) => node.id) : []);
+      
+      const existingIds = new Set(existingChildIds);
       const appendIds = nodeIds.filter((id) => id && !existingIds.has(id));
+      
       if (appendIds.length === 0) {
         return { selectedGroupId: groupId };
       }
-      const nextChildIds = [...targetGroup.childNodeIds, ...appendIds];
-      const layout = computeGroupLayout(state.nodes, nextChildIds);
+      
+      // 计算所有子节点的绝对位置（包括现有子节点和新添加的节点）
+      const allChildIds = [...existingChildIds, ...appendIds];
+      const nodesWithAbsolutePositions = state.nodes.map((node) => {
+        if (allChildIds.includes(node.id)) {
+          // 计算节点的绝对位置
+          let absoluteX = node.position?.x || 0;
+          let absoluteY = node.position?.y || 0;
+          
+          if (node.parentId) {
+            // 如果节点已经是子节点，需要找到父节点来计算绝对位置
+            const currentParent = state.nodes.find(n => n.id === node.parentId);
+            if (currentParent) {
+              absoluteX = (currentParent.position?.x || 0) + absoluteX;
+              absoluteY = (currentParent.position?.y || 0) + absoluteY;
+            }
+          }
+          
+          return {
+            ...node,
+            position: {
+              x: absoluteX,
+              y: absoluteY,
+            },
+          };
+        }
+        return node;
+      });
+      
+      const layout = computeGroupLayout(nodesWithAbsolutePositions, allChildIds);
       if (!layout) {
         return {};
       }
-      const currentBounds = targetGroup.bounds || {
+      
+      // 获取或创建父节点
+      let finalParentNode = parentNode;
+      const originalTitle = parentNode?.data?.title || targetGroup?.title || `${allChildIds.length}个节点`;
+      
+      if (!finalParentNode) {
+        // 如果父节点不存在，创建一个
+        finalParentNode = {
+          id: parentNodeId,
+          type: 'groupNode',
+          position: layout.position,
+          data: {
+            id: parentNodeId.replace('node_', ''),
+            title: originalTitle,
+            childCount: allChildIds.length,
+            width: layout.width,
+            height: layout.height,
+          },
+          style: {
+            width: layout.width,
+            height: layout.height,
+          },
+          parentId: undefined,
+          selectable: true,
+          draggable: true,
+          zIndex: 1,
+        };
+      } else {
+        // 更新父节点的尺寸，保持标题不变
+        finalParentNode = {
+          ...finalParentNode,
+          position: layout.position,
+          data: {
+            ...finalParentNode.data,
+            title: originalTitle, // 保持原有标题
+            childCount: allChildIds.length,
+            width: layout.width,
+            height: layout.height,
+          },
+          style: {
+            ...finalParentNode.style,
+            width: layout.width,
+            height: layout.height,
+          },
+          // 确保保留拖拽和选择属性
+          selectable: true,
+          draggable: true,
+        };
+      }
+      
+      // 更新所有子节点：包括现有子节点和新添加的节点，重新计算相对位置
+      const updatedNodes = state.nodes.map((node) => {
+        if (allChildIds.includes(node.id)) {
+          // 获取节点的绝对位置（已经在 nodesWithAbsolutePositions 中计算过）
+          const nodeWithAbsolutePos = nodesWithAbsolutePositions.find(n => n.id === node.id);
+          const absoluteX = nodeWithAbsolutePos?.position?.x || node.position?.x || 0;
+          const absoluteY = nodeWithAbsolutePos?.position?.y || node.position?.y || 0;
+          
+          // 计算相对于新父节点的位置
+          const relativePosition = {
+            x: absoluteX - layout.position.x,
+            y: absoluteY - layout.position.y,
+          };
+          
+          return {
+            ...node,
+            parentId: parentNodeId,
+            position: relativePosition,
+            extent: 'parent',
+            draggable: true,
+          };
+        }
+        return node;
+      });
+      
+      // 更新父节点到节点列表
+      const allNodes = updatedNodes.map((node) => {
+        if (node.id === parentNodeId) {
+          return finalParentNode;
+        }
+        return node;
+      });
+      
+      // 如果父节点不存在，添加到节点列表
+      if (!parentNode) {
+        allNodes.unshift(finalParentNode);
+      }
+      
+      // 更新分组信息
+      const currentBounds = targetGroup?.bounds || {
         x: layout.position.x,
         y: layout.position.y,
         width: layout.width,
@@ -989,12 +1207,14 @@ const useFlowStore = create((set, get) => ({
       const nextTop = Math.min(boundsTop, layoutTop);
       const nextRight = Math.max(boundsRight, layoutRight);
       const nextBottom = Math.max(boundsBottom, layoutBottom);
+      
       return {
+        nodes: allNodes,
         groups: (state.groups || []).map((group) =>
           group.id === groupId
             ? {
                 ...group,
-                childNodeIds: nextChildIds,
+                childNodeIds: allChildIds,
                 bounds: {
                   x: nextLeft,
                   y: nextTop,

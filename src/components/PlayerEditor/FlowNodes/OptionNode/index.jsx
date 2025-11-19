@@ -90,12 +90,12 @@ export default function OptionNode({ id, data, selected }) {
     return localInputs[field] !== undefined ? localInputs[field] : (data[field] || '');
   }, [localInputs, data]);
 
-  // 当 optionText 变化时，同步到编辑状态
+  // 当 optionText 变化时，同步到编辑状态（直接使用 data.optionText 确保外部更新能反映）
   useEffect(() => {
     if (!isEditingOptionText) {
-      setEditingOptionText(getInputValue('optionText') || '');
+      setEditingOptionText(data.optionText || '');
     }
-  }, [data.optionText, isEditingOptionText, getInputValue]);
+  }, [data.optionText, isEditingOptionText]);
 
   // 处理复选框变化
   const handleCheckboxChange = (field) => {
@@ -200,23 +200,28 @@ export default function OptionNode({ id, data, selected }) {
             <input
               type="text"
               value={editingOptionText}
-              onChange={(e) => setEditingOptionText(e.target.value)}
+              onChange={(e) => {
+                const newValue = e.target.value;
+                setEditingOptionText(newValue);
+                // 实时更新 store，实现双向同步
+                updateNode(id, { optionText: newValue });
+                setLocalInputs(prev => ({ ...prev, optionText: newValue }));
+              }}
               onBlur={() => {
-                if (editingOptionText !== (getInputValue('optionText') || '')) {
-                  handleTextInputChange('optionText', editingOptionText);
-                  handleTextInputBlur('optionText');
-                }
+                const finalValue = editingOptionText.trim() || '';
+                updateNode(id, { optionText: finalValue });
+                setLocalInputs(prev => ({ ...prev, optionText: finalValue }));
                 setIsEditingOptionText(false);
               }}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
-                  if (editingOptionText !== (getInputValue('optionText') || '')) {
-                    handleTextInputChange('optionText', editingOptionText);
-                    handleTextInputBlur('optionText');
-                  }
+                  const finalValue = editingOptionText.trim() || '';
+                  updateNode(id, { optionText: finalValue });
+                  setLocalInputs(prev => ({ ...prev, optionText: finalValue }));
                   setIsEditingOptionText(false);
+                  e.target.blur();
                 } else if (e.key === 'Escape') {
-                  setEditingOptionText(getInputValue('optionText') || '');
+                  setEditingOptionText(data.optionText || '');
                   setIsEditingOptionText(false);
                 }
               }}
@@ -227,13 +232,13 @@ export default function OptionNode({ id, data, selected }) {
             <span 
               className={styles.optionTextLabel}
               onDoubleClick={() => {
-                setEditingOptionText(getInputValue('optionText') || '');
+                setEditingOptionText(data.optionText || '');
                 setIsEditingOptionText(true);
               }}
               style={{ cursor: 'text' }}
               title="双击编辑"
             >
-              {getInputValue('optionText') || '选择文本'}
+              {data.optionText || '选择文本'}
             </span>
           )}
         </div>

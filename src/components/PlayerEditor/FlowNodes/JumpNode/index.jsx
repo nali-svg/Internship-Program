@@ -55,12 +55,12 @@ export default function JumpNode({ id, data, selected }) {
     return localInputs[field] !== undefined ? localInputs[field] : (data[field] || '');
   }, [localInputs, data]);
 
-  // 当 jumpPointId 变化时，同步到编辑状态
+  // 当 jumpPointId 变化时，同步到编辑状态（直接使用 data.jumpPointId 确保外部更新能反映）
   useEffect(() => {
     if (!isEditingNodeName) {
-      setEditingNodeName(getInputValue('jumpPointId') || '');
+      setEditingNodeName(data.jumpPointId || '');
     }
-  }, [data.jumpPointId, isEditingNodeName, getInputValue]);
+  }, [data.jumpPointId, isEditingNodeName]);
 
   // 处理复选框变化
   const handleCheckboxChange = (field) => {
@@ -128,23 +128,28 @@ export default function JumpNode({ id, data, selected }) {
               <input
                 type="text"
                 value={editingNodeName}
-                onChange={(e) => setEditingNodeName(e.target.value)}
+                onChange={(e) => {
+                  const newValue = e.target.value;
+                  setEditingNodeName(newValue);
+                  // 实时更新 store，实现双向同步
+                  updateNode(id, { jumpPointId: newValue });
+                  setLocalInputs(prev => ({ ...prev, jumpPointId: newValue }));
+                }}
                 onBlur={() => {
-                  if (editingNodeName !== (getInputValue('jumpPointId') || '')) {
-                    handleTextInputChange('jumpPointId', editingNodeName);
-                    handleTextInputBlur('jumpPointId');
-                  }
+                  const finalValue = editingNodeName.trim() || '';
+                  updateNode(id, { jumpPointId: finalValue });
+                  setLocalInputs(prev => ({ ...prev, jumpPointId: finalValue }));
                   setIsEditingNodeName(false);
                 }}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
-                    if (editingNodeName !== (getInputValue('jumpPointId') || '')) {
-                      handleTextInputChange('jumpPointId', editingNodeName);
-                      handleTextInputBlur('jumpPointId');
-                    }
+                    const finalValue = editingNodeName.trim() || '';
+                    updateNode(id, { jumpPointId: finalValue });
+                    setLocalInputs(prev => ({ ...prev, jumpPointId: finalValue }));
                     setIsEditingNodeName(false);
+                    e.target.blur();
                   } else if (e.key === 'Escape') {
-                    setEditingNodeName(getInputValue('jumpPointId') || '');
+                    setEditingNodeName(data.jumpPointId || '');
                     setIsEditingNodeName(false);
                   }
                 }}
@@ -155,13 +160,13 @@ export default function JumpNode({ id, data, selected }) {
               <span 
                 className={styles.nodeNameLabel}
                 onDoubleClick={() => {
-                  setEditingNodeName(getInputValue('jumpPointId') || '');
+                  setEditingNodeName(data.jumpPointId || '');
                   setIsEditingNodeName(true);
                 }}
                 style={{ cursor: 'text' }}
                 title="双击编辑"
               >
-                {getInputValue('jumpPointId') || '跳转点ID'}
+                {data.jumpPointId || '跳转点ID'}
               </span>
             )}
           </div>

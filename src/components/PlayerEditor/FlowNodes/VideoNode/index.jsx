@@ -99,12 +99,12 @@ export default function VideoNode({ id, data, selected }) {
     return localInputs[field] !== undefined ? localInputs[field] : (data[field] || '');
   }, [localInputs, data]);
 
-  // 当 nodeName 变化时，同步到编辑状态
+  // 当 nodeName 变化时，同步到编辑状态（直接使用 data.nodeName 确保外部更新能反映）
   useEffect(() => {
     if (!isEditingNodeName) {
-      setEditingNodeName(getInputValue('nodeName') || '');
+      setEditingNodeName(data.nodeName || '');
     }
-  }, [data.nodeName, isEditingNodeName, getInputValue]);
+  }, [data.nodeName, isEditingNodeName]);
 
   // 处理复选框变化
   const handleCheckboxChange = (field) => {
@@ -483,23 +483,28 @@ export default function VideoNode({ id, data, selected }) {
               <input
                 type="text"
                 value={editingNodeName}
-                onChange={(e) => setEditingNodeName(e.target.value)}
+                onChange={(e) => {
+                  const newValue = e.target.value;
+                  setEditingNodeName(newValue);
+                  // 实时更新 store，实现双向同步
+                  updateNode(id, { nodeName: newValue });
+                  setLocalInputs(prev => ({ ...prev, nodeName: newValue }));
+                }}
                 onBlur={() => {
-                  if (editingNodeName !== (getInputValue('nodeName') || '')) {
-                    handleTextInputChange('nodeName', editingNodeName);
-                    handleTextInputBlur('nodeName');
-                  }
+                  const finalValue = editingNodeName.trim() || '';
+                  updateNode(id, { nodeName: finalValue });
+                  setLocalInputs(prev => ({ ...prev, nodeName: finalValue }));
                   setIsEditingNodeName(false);
                 }}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
-                    if (editingNodeName !== (getInputValue('nodeName') || '')) {
-                      handleTextInputChange('nodeName', editingNodeName);
-                      handleTextInputBlur('nodeName');
-                    }
+                    const finalValue = editingNodeName.trim() || '';
+                    updateNode(id, { nodeName: finalValue });
+                    setLocalInputs(prev => ({ ...prev, nodeName: finalValue }));
                     setIsEditingNodeName(false);
+                    e.target.blur();
                   } else if (e.key === 'Escape') {
-                    setEditingNodeName(getInputValue('nodeName') || '');
+                    setEditingNodeName(data.nodeName || '');
                     setIsEditingNodeName(false);
                   }
                 }}
@@ -510,13 +515,13 @@ export default function VideoNode({ id, data, selected }) {
               <span 
                 className={styles.nodeNameLabel}
                 onDoubleClick={() => {
-                  setEditingNodeName(getInputValue('nodeName') || '');
+                  setEditingNodeName(data.nodeName || '');
                   setIsEditingNodeName(true);
                 }}
                 style={{ cursor: 'text' }}
                 title="双击编辑"
               >
-                {getInputValue('nodeName') || '节点名称'}
+                {data.nodeName || '节点名称'}
               </span>
             )}
           </div>
