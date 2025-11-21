@@ -105,6 +105,10 @@ const useFlowStore = create((set, get) => ({
         jumpPointId: '',
         jumpPointDesc: '',
         enableCommerce: false,
+        rateEffects: [],  // 每秒变量变化
+        hasRandomTimeEvent: false,  // 随机时间事件
+        randomTimeMinSeconds: 0,  // 最小秒数
+        randomTimeMaxSeconds: 0,  // 最大秒数
         activeTab: 'input',
         ...nodeData,
       },
@@ -841,8 +845,8 @@ const useFlowStore = create((set, get) => ({
         // 父节点可以选择和拖拽
         selectable: true,
         draggable: true,
-        // 确保父节点在正确的层级
-        zIndex: 1,
+        // 确保父节点在正确的层级，使用更高的 z-index 确保标题可见
+        zIndex: 1000,
       };
       
       // 更新子节点：设置parentId，转换位置为相对位置，设置extent限制
@@ -878,6 +882,8 @@ const useFlowStore = create((set, get) => ({
             extent: 'parent',
             // 确保子节点仍然可拖拽（在父节点内）
             draggable: true,
+            // 设置较低的 z-index，确保标题始终可见
+            zIndex: 0,
           };
         }
         return node;
@@ -1125,7 +1131,7 @@ const useFlowStore = create((set, get) => ({
           parentId: undefined,
           selectable: true,
           draggable: true,
-          zIndex: 1,
+          zIndex: 1000,
         };
       } else {
         // 更新父节点的尺寸，保持标题不变
@@ -1170,6 +1176,8 @@ const useFlowStore = create((set, get) => ({
             position: relativePosition,
             extent: 'parent',
             draggable: true,
+            // 设置较低的 z-index，确保标题始终可见
+            zIndex: 0,
           };
         }
         return node;

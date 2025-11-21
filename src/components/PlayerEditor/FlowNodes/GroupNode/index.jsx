@@ -146,6 +146,17 @@ export default function GroupNode({ id, data, selected }) {
 
   const displayTitle = data.title || `${data.childCount || 0}个节点`;
 
+  // 使用 useEffect 动态更新节点的 z-index
+  useEffect(() => {
+    if (shouldShowTitleInside) {
+      // 找到对应的 React Flow 节点并更新其 z-index
+      const nodeElement = containerRef.current?.closest('.react-flow__node');
+      if (nodeElement) {
+        nodeElement.style.zIndex = '100000';
+      }
+    }
+  }, [shouldShowTitleInside]);
+
   return (
     <div 
       ref={containerRef}
@@ -153,6 +164,7 @@ export default function GroupNode({ id, data, selected }) {
       style={{
         width: data.width || 400,
         height: data.height || 300,
+        position: 'relative',
       }}
     >
       {/* 可编辑标题 - 根据缩放级别显示在上方或内部 */}

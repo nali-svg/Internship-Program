@@ -234,3 +234,24 @@
     background-position: 0 0, 0 0;
     pointer-events: none;
 }
+
+/* 确保 GroupNode 标题始终可见，不被子节点遮挡 */
+:global(.react-flow__node[data-parent-id]) {
+    z-index: 0 !important;
+}
+
+/* 确保所有子节点的 z-index 都很低 */
+:global(.react-flow__node[data-parent-id] *) {
+    z-index: auto !important;
+}
+
+/* 确保 GroupNode 的标题容器在所有内容之上 */
+:global(.react-flow__node[data-type="groupNode"] .titleContainerInside) {
+    z-index: 999999 !important;
+    transform: translateZ(0) !important;
+}
+
+/* 确保 GroupNode 本身在标题显示在内部时有更高的 z-index */
+:global(.react-flow__node[data-type="groupNode"].titleInside) {
+    z-index: 100000 !important;
+}

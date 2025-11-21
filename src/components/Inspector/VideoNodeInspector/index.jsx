@@ -30,7 +30,7 @@ export default function VideoNodeInspector({ nodeId, data }) {
   
   // 初始化本地状态，确保外部 data 变化时同步到本地状态
   useEffect(() => {
-    const textFields = ['nodeName', 'conditionDesc', 'achievementName', 'variableName', 'fillColor', 'statsKeyPoint', 'jumpPointId', 'jumpPointDesc', 'defaultValue', 'memoryId', 'memoryName', 'memoryDescription', 'dialogueText', 'typingSpeed', 'probabilityExpression'];
+    const textFields = ['nodeName', 'conditionDesc', 'achievementName', 'variableName', 'fillColor', 'statsKeyPoint', 'jumpPointId', 'jumpPointDesc', 'defaultValue', 'memoryId', 'memoryName', 'memoryDescription', 'dialogueText', 'typingSpeed', 'probabilityExpression', 'randomTimeMinSeconds', 'randomTimeMaxSeconds'];
     setLocalInputs(prev => {
       const newInputs = { ...prev };
       // 同步所有字段的值，确保外部更新能够反映到界面
@@ -329,6 +329,35 @@ export default function VideoNodeInspector({ nodeId, data }) {
   const handleRemoveEffect = (effectId) => {
     const updatedEffects = data.effects.filter(eff => eff.id !== effectId);
     handleInputChange('effects', updatedEffects);
+  };
+  
+  // 每秒变量变化处理
+  const handleAddRateEffect = () => {
+    let defaultVariableName = '';
+    const variables = useFlowStore.getState().variables;
+    if (variables.length === 0) {
+      defaultVariableName = createDefaultVariable(useFlowStore);
+    }
+    
+    const newRateEffects = [...(data.rateEffects || []), { 
+      id: Date.now(), 
+      variableName: defaultVariableName, 
+      ratePerSecond: 0,
+      operation: 'Add'
+    }];
+    handleInputChange('rateEffects', newRateEffects);
+  };
+  
+  const handleUpdateRateEffect = (rateEffectId, field, value) => {
+    const updatedRateEffects = (data.rateEffects || []).map(eff =>
+      eff.id === rateEffectId ? { ...eff, [field]: value } : eff
+    );
+    handleInputChange('rateEffects', updatedRateEffects);
+  };
+  
+  const handleRemoveRateEffect = (rateEffectId) => {
+    const updatedRateEffects = (data.rateEffects || []).filter(eff => eff.id !== rateEffectId);
+    handleInputChange('rateEffects', updatedRateEffects);
   };
   
   // 字幕处理
@@ -833,6 +862,56 @@ export default function VideoNodeInspector({ nodeId, data }) {
           <input type="checkbox" checked={data.unlockAchievement} onChange={() => handleCheckboxChange('unlockAchievement')} />
           <span>经过该节点时解锁成就</span>
         </label>
+        
+        {/* 每秒变量变化 */}
+        <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #e0e0e0' }}>
+          <h4 style={{ marginBottom: '12px', fontSize: '14px', fontWeight: '600' }}>每秒变量变化</h4>
+          <button className={styles.addBtn} onClick={handleAddRateEffect}>
+            添加每秒变化
+          </button>
+          {data.rateEffects && data.rateEffects.length > 0 && (
+            <div className={styles.listContainer}>
+              {data.rateEffects.map((rateEffect) => (
+                <div key={rateEffect.id} className={styles.listItem}>
+                  <input 
+                    type="text" 
+                    value={rateEffect.variableName || ''}
+                    onChange={(e) => handleUpdateRateEffect(rateEffect.id, 'variableName', e.target.value)}
+                    placeholder="变量"
+                    style={{ flex: '1 1 0', minWidth: '50px' }}
+                  />
+                  <select 
+                    value={rateEffect.operation || 'Add'}
+                    onChange={(e) => handleUpdateRateEffect(rateEffect.id, 'operation', e.target.value)}
+                    style={{ flex: '0 0 auto', minWidth: '75px', maxWidth: '100px' }}
+                  >
+                    <option value="Add">增加</option>
+                    <option value="Subtract">减少</option>
+                    <option value="Set">设置</option>
+                  </select>
+                  <input 
+                    type="text" 
+                    value={rateEffect.ratePerSecond || 0}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      const numValue = parseFloat(value);
+                      handleUpdateRateEffect(rateEffect.id, 'ratePerSecond', isNaN(numValue) ? value : numValue);
+                    }}
+                    placeholder="值"
+                    style={{ flex: '1 1 0', minWidth: '50px' }}
+                  />
+                  <button 
+                    className={styles.removeButton}
+                    onClick={() => handleRemoveRateEffect(rateEffect.id)}
+                  >
+                    删除
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        
         <label className={styles.checkboxLabel}>
           <input type="checkbox" checked={data.isRandomNode} onChange={() => handleCheckboxChange('isRandomNode')} />
           <span>随机节点</span>
@@ -847,6 +926,49 @@ export default function VideoNodeInspector({ nodeId, data }) {
               placeholder="输入概率表达式"
             />
           </div>
+        )}
+      </div>
+      
+      {/* 随机时间事件 */}
+      <div className={styles.section}>
+        <h3 className={styles.sectionTitle}>随机时间事件</h3>
+        <label className={styles.checkboxLabel}>
+          <input 
+            type="checkbox" 
+            checked={data.hasRandomTimeEvent} 
+            onChange={() => handleCheckboxChange('hasRandomTimeEvent')} 
+          />
+          <span>启用随机时间事件</span>
+        </label>
+        {data.hasRandomTimeEvent && (
+          <>
+            <div className={styles.field}>
+              <label>最小秒数</label>
+              <input 
+                type="text" 
+                value={data.randomTimeMinSeconds || 0}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  const numValue = parseFloat(value);
+                  handleInputChange('randomTimeMinSeconds', isNaN(numValue) ? value : numValue);
+                }}
+                placeholder="0"
+              />
+            </div>
+            <div className={styles.field}>
+              <label>最大秒数</label>
+              <input 
+                type="text" 
+                value={data.randomTimeMaxSeconds || 0}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  const numValue = parseFloat(value);
+                  handleInputChange('randomTimeMaxSeconds', isNaN(numValue) ? value : numValue);
+                }}
+                placeholder="0"
+              />
+            </div>
+          </>
         )}
       </div>
       

@@ -218,7 +218,11 @@ const convertStoryDataToFlow = (content) => {
       dialogueAudioPath: node.dialogAudioPath || node.dialogueAudioPath || '',
       typingSpeed: node.typingSpeed || 0.05,
       effects: mapEffects(node.effects || []),
+      rateEffects: node.rateEffects || [],
       conditions: node.conditions || [],
+      hasRandomTimeEvent: node.hasRandomTimeEvent || false,
+      randomTimeMinSeconds: node.randomTimeMinSeconds || 0,
+      randomTimeMaxSeconds: node.randomTimeMaxSeconds || 0,
       activeTab: 'input',
     });
   });
@@ -515,7 +519,11 @@ const convertFlowToStoryData = (flowNodes = [], flowEdges = [], flowVariables = 
           typingSpeed: safeNumber(node.data?.typingSpeed, 0.05),
           dialogAudioPath: safeString(node.data?.dialogAudioPath, ''),
           effects: mapEffectsForExport(node.data?.effects),
-          rateEffects: [],
+          rateEffects: Array.isArray(node.data?.rateEffects) ? node.data.rateEffects.map(re => ({
+            variableName: safeString(re?.variableName, ''),
+            ratePerSecond: safeNumber(re?.ratePerSecond, 0),
+            operation: safeString(re?.operation, 'Add'),
+          })) : [],
           conditions: Array.isArray(node.data?.conditions) ? node.data.conditions : [],
           showWhenUnavailable: safeBoolean(node.data?.showWhenConditionNotMet, false),
           description: safeString(node.data?.conditionDesc, ''),
@@ -1075,10 +1083,21 @@ export default function PlayerEditor({ onNodeSelect }) {
         ? selectedNodeIds
         : selectedNodeId ? [selectedNodeId] : []
     );
-    const nodesWithSelection = nodes.map((node) => ({
-      ...node,
-      selected: selectedSet.has(node.id),
-    }));
+    const nodesWithSelection = nodes.map((node) => {
+      const nodeWithSelection = {
+        ...node,
+        selected: selectedSet.has(node.id),
+      };
+      // 确保 GroupNode 的 z-index 被保留
+      if (node.type === 'groupNode' && node.zIndex) {
+        nodeWithSelection.zIndex = node.zIndex;
+      }
+      // 确保子节点的 z-index 被保留
+      if (node.parentId && node.zIndex !== undefined) {
+        nodeWithSelection.zIndex = node.zIndex;
+      }
+      return nodeWithSelection;
+    });
     setReactFlowNodes(nodesWithSelection);
   }, [nodes, setReactFlowNodes, selectedNodeId, selectedNodeIds, isSelecting]);
 
