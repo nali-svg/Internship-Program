@@ -176,15 +176,6 @@ export default function CardNode({ id, data, selected }) {
             <h3 className={styles.title}>卡牌节点</h3>
             <span className={styles.nodeId}>ID:{data.id}</span>
           </div>
-          <label className={styles.checkboxLabel}>
-            <input 
-              type="checkbox" 
-              checked={data.isCheckpoint}
-              onChange={() => handleCheckboxChange('isCheckpoint')}
-              className="no-drag"
-            />
-            <span>设为检查点</span>
-          </label>
         </div>
 
         {/* 标签页导航 */}
@@ -353,6 +344,22 @@ export default function CardNode({ id, data, selected }) {
               {formatEffectLabel(effect)}
             </div>
           ))}
+        </div>
+      )}
+
+      {/* 显示设置标签 - 在效果标签下方 */}
+      {(data.preDisplay || data.showWhenConditionNotMet) && (
+        <div className={styles.optionTags}>
+          {data.preDisplay && (
+            <div className={styles.optionTag}>
+              提前显示
+            </div>
+          )}
+          {data.showWhenConditionNotMet && (
+            <div className={styles.optionTag}>
+              添加不满足时显示：{data.unavailableMessage || '（无提示信息）'}
+            </div>
+          )}
         </div>
       )}
 

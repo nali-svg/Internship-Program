@@ -112,15 +112,6 @@ export default function BgmNode({ id, data, selected }) {
             <h3 className={styles.title}>BGM节点</h3>
             <span className={styles.nodeId}>ID:{data.id}</span>
           </div>
-          <label className={styles.checkboxLabel}>
-            <input 
-              type="checkbox" 
-              checked={data.isCheckpoint}
-              onChange={() => handleCheckboxChange('isCheckpoint')}
-              className="no-drag"
-            />
-            <span>设为检查点</span>
-          </label>
         </div>
 
         {/* 标签页导航 */}
@@ -235,6 +226,22 @@ export default function BgmNode({ id, data, selected }) {
           </div>
         </div>
       </div>
+
+      {/* 循环播放和自动淡出标签 */}
+      {(data.loop || data.autoFadeOut) && (
+        <div className={styles.optionTags}>
+          {data.loop && (
+            <div className={styles.optionTag}>
+              循环播放
+            </div>
+          )}
+          {data.autoFadeOut && (
+            <div className={styles.optionTag}>
+              自动淡出
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

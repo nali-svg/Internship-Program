@@ -124,6 +124,12 @@
   pointer-events: auto;
   z-index: 10;
   transition: all 0.3s ease;
+  // 确保默认状态下不会影响子节点
+  bottom: auto;
+  width: auto;
+  height: auto;
+  transform: none;
+  will-change: auto;
   
   &.titleContainerInside {
     top: 0;
@@ -161,6 +167,12 @@
   white-space: nowrap;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
+  // 确保默认状态下不会影响子节点
+  width: auto;
+  height: auto;
+  position: relative;
+  z-index: auto;
+  transform: none;
   
   &:hover {
     background: rgba(24, 144, 255, 1);
@@ -202,6 +214,12 @@
   text-align: center;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
+  // 确保默认状态下不会影响子节点
+  width: auto;
+  height: auto;
+  position: relative;
+  z-index: auto;
+  transform: none;
   
   &:focus {
     border-color: rgba(24, 144, 255, 1);

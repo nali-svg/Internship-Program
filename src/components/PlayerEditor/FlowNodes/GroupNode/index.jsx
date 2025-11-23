@@ -148,11 +148,14 @@ export default function GroupNode({ id, data, selected }) {
 
   // 使用 useEffect 动态更新节点的 z-index
   useEffect(() => {
-    if (shouldShowTitleInside) {
-      // 找到对应的 React Flow 节点并更新其 z-index
-      const nodeElement = containerRef.current?.closest('.react-flow__node');
-      if (nodeElement) {
+    const nodeElement = containerRef.current?.closest('.react-flow__node');
+    if (nodeElement) {
+      if (shouldShowTitleInside) {
+        // 当标题在内部时，提高 z-index
         nodeElement.style.zIndex = '100000';
+      } else {
+        // 当标题不在内部时，重置 z-index，确保子节点可以正常点击
+        nodeElement.style.zIndex = '';
       }
     }
   }, [shouldShowTitleInside]);

@@ -75,18 +75,10 @@ export default function TaskNode({ id, data, selected }) {
     >
       {/* 标题栏 */}
       <div className={styles.header}>
-        <div className={styles.titleRow}>
+        <div className={styles.headerLeft}>
           <h3 className={styles.title}>任务节点</h3>
+          <span className={styles.nodeId}>ID:{data.id}</span>
         </div>
-        <label className={styles.checkboxLabel}>
-          <input 
-            type="checkbox" 
-            checked={data.isCheckpoint}
-            onChange={() => handleCheckboxChange('isCheckpoint')}
-            className="no-drag"
-          />
-          <span>设为检查点</span>
-        </label>
       </div>
 
       {/* 标签页导航 */}
@@ -135,11 +127,6 @@ export default function TaskNode({ id, data, selected }) {
       <div className={`${styles.content} no-drag`} onWheel={handleContentWheel}>
         {/* 基本信息区 */}
         <div className={styles.section}>
-          <div className={styles.field}>
-            <label>ID</label>
-            <input type="text" value={data.id} readOnly className={styles.readonly} />
-          </div>
-          
           <div className={styles.field}>
             <label>最大显示数量</label>
             <input 

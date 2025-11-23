@@ -152,6 +152,21 @@ export default function VideoNode({ id, data, selected }) {
     return value !== '' ? `${variable} ${operation} ${value}` : `${variable} ${operation}`.trim();
   }, []);
 
+  const formatRateEffectLabel = useCallback((rateEffect) => {
+    if (!rateEffect) {
+      return '';
+    }
+    const operationMap = {
+      Set: '=',
+      Add: '+',
+      Subtract: '-',
+    };
+    const variable = rateEffect.variableName ?? '';
+    const operation = operationMap[rateEffect.operation] || rateEffect.operation || '+';
+    const rate = rateEffect.ratePerSecond ?? 0;
+    return `${variable} ${operation} ${rate}/秒`;
+  }, []);
+
   // 商品列表映射（与Inspector中的商品列表保持一致）
   const productList = useMemo(() => [
     { id: '6216ba3d-af04-4d6f-a595-aa8adda4e385', name: '琉璃在床上' },
@@ -440,6 +455,12 @@ export default function VideoNode({ id, data, selected }) {
         className={`${styles.card} ${selected ? styles.selected : ''} ${hasVideoPreview ? styles.cardHasVideo : ''}`}
         tabIndex={0}
       >
+        {/* 右上角检查点标记 */}
+        {data.isCheckpoint && (
+          <div className={styles.checkpointBadge}>
+            ✓
+          </div>
+        )}
         {/* 卡片头部 */}
         <div className={styles.header}>
           <div className={styles.headerLeft}>
@@ -638,6 +659,20 @@ export default function VideoNode({ id, data, selected }) {
               className={styles.effectTag}
             >
               {formatEffectLabel(effect)}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* 每秒变量变化标签 */}
+      {data.rateEffects && data.rateEffects.length > 0 && (
+        <div className={styles.rateEffectTags}>
+          {data.rateEffects.map((rateEffect, index) => (
+            <div
+              key={rateEffect.id ?? `rateEffect-${index}`}
+              className={styles.rateEffectTag}
+            >
+              {formatRateEffectLabel(rateEffect)}
             </div>
           ))}
         </div>
