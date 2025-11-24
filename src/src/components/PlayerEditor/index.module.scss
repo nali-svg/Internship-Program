@@ -1,0 +1,257 @@
+.leftColumn{
+    width: 100%;
+    height: 100%;
+    background-color: #f0f0f0;
+    display: flex;
+    flex-direction: column;
+    
+    .header{
+        display: flex;
+        flex-wrap: wrap;
+        padding: 16px;
+    }
+}
+
+/* 搜索框容器 */
+.searchContainer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background-color: #f0f0f0; /* 浅灰色背景，与整体界面一致 */
+    border-top: 1px solid #e0e0e0;
+}
+
+/* 搜索标签 */
+.searchLabel {
+    color: #666; /* 深灰色文字 */
+    font-size: 14px;
+    margin: 0;
+    white-space: nowrap;
+}
+
+/* 搜索输入框 */
+.searchInput {
+    flex: 1;
+    padding: 8px 12px;
+    background-color: #ffffff; /* 白色背景 */
+    border: 1px solid #0078d4; /* 蓝色边框 */
+    border-radius: 4px;
+    color: #333; /* 深色文字 */
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    
+    &:focus {
+        border-color: #40a9ff; /* 更亮的蓝色 */
+        box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.1);
+    }
+    
+    &::placeholder {
+        color: #999;
+    }
+}
+
+/* 搜索按钮 */
+.searchButton {
+    padding: 8px 16px;
+    background-color: #ffffff; /* 白色背景 */
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    color: #666; /* 深灰色文字 */
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    
+    &:hover {
+        background-color: #f5f5f5;
+        border-color: #40a9ff;
+        color: #0078d4;
+    }
+    
+    &:active {
+        background-color: #e6e6e6;
+    }
+}
+
+/* 清除按钮 */
+.clearButton {
+    padding: 8px 12px;
+    background-color: #ffffff;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    color: #666;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    
+    &:hover {
+        background-color: #f5f5f5;
+        border-color: #ff4d4f;
+        color: #ff4d4f;
+    }
+}
+
+/* 搜索结果提示 */
+.searchResults {
+    padding: 8px 16px;
+    background-color: #f0f0f0;
+    color: #666;
+    font-size: 12px;
+    border-top: 1px solid #e0e0e0;
+}
+
+
+/* 变量管理器包装器 - 固定在画布左上角 */
+.variableManagerWrapper {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    width: 250px;
+    height: 600px;
+    z-index: 10;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+    pointer-events: auto;
+}
+
+/* 框选矩形样式 - Windows桌面框选样式 */
+.selectionBox {
+    position: absolute;
+    border: 1px dashed #0078d4;
+    background-color: rgba(0, 120, 212, 0.1);
+    pointer-events: none;
+    z-index: 1000;
+    box-sizing: border-box;
+    /* Windows 桌面框选样式优化 */
+    border-style: dashed;
+    border-width: 1px;
+    /* 确保边框清晰可见 */
+    outline: none;
+}
+
+/* 删除区域样式 */
+.deleteZone {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 80px;
+    background-color: #fff;
+    border: 2px dashed #d9d9d9;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    
+    .deleteZoneIcon {
+        font-size: 32px;
+        margin-bottom: 8px;
+    }
+    
+    .deleteZoneText {
+        font-size: 14px;
+        color: #666;
+    }
+}
+
+/* 当有节点被拖拽时显示删除区域 */
+.deleteZoneVisible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* 当鼠标悬停在删除区域上时高亮 */
+.deleteZoneActive {
+    background-color: #fff1f0;
+    border-color: #ff4d4f;
+    border-style: solid;
+    transform: translateX(-50%) scale(1.1);
+    
+    .deleteZoneIcon {
+        animation: shake 0.5s infinite;
+    }
+    
+    .deleteZoneText {
+        color: #ff4d4f;
+        font-weight: bold;
+    }
+}
+
+/* 垃圾桶摇晃动画 */
+@keyframes shake {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-10deg); }
+    75% { transform: rotate(10deg); }
+}
+
+/* React Flow 网格背景美化 */
+:global(.react-flow__background) {
+    background-color: #f8f9fa !important;
+    background-image: 
+        linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 0;
+}
+
+/* 添加更精细的网格线 */
+:global(.react-flow__background::before) {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        linear-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 0, 0, 0.1) 1px, transparent 1px);
+    background-size: 100px 100px;
+    background-position: 0 0, 0 0;
+    pointer-events: none;
+}
+
+/* 添加中心十字线 */
+:global(.react-flow__background::after) {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        linear-gradient(rgba(24, 144, 255, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(24, 144, 255, 0.1) 1px, transparent 1px);
+    background-size: 200px 200px;
+    background-position: 0 0, 0 0;
+    pointer-events: none;
+}
+
+/* 确保 GroupNode 标题始终可见，不被子节点遮挡 */
+:global(.react-flow__node[data-parent-id]) {
+    z-index: 0 !important;
+}
+
+/* 确保所有子节点的 z-index 都很低 */
+:global(.react-flow__node[data-parent-id] *) {
+    z-index: auto !important;
+}
+
+/* 确保 GroupNode 的标题容器在所有内容之上 */
+:global(.react-flow__node[data-type="groupNode"] .titleContainerInside) {
+    z-index: 999999 !important;
+    transform: translateZ(0) !important;
+}
+
+/* 确保 GroupNode 本身在标题显示在内部时有更高的 z-index */
+:global(.react-flow__node[data-type="groupNode"].titleInside) {
+    z-index: 100000 !important;
+}

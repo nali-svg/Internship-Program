@@ -1,9 +1,10 @@
 .card {
-    background: #f4fbf4;
+    background: #eef6ff;
     border: 1px solid #ddd;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     width: 360px;
+    max-height: 400px;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -19,18 +20,6 @@
         border-color: #1890ff;
         box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.3), 0 0 20px rgba(24, 144, 255, 0.2);
         animation: selectedGlow 2s ease-in-out infinite alternate;
-    }
-    
-    &.wide {
-        width: 560px;
-    }
-    
-    &.hasImage {
-        max-height: 600px;
-    }
-    
-    &.cardHasImage {
-        max-height: 600px;
     }
 }
 
@@ -54,6 +43,10 @@
     pointer-events: none;
 }
 
+.cardHasVideo {
+    max-height: 650px;
+}
+
 /* 选中状态的蓝光动画 */
 @keyframes selectedGlow {
     0% {
@@ -66,7 +59,7 @@
 
 .header {
     padding: 8px 12px;
-    background: #c8e6c9; // 绿色 - 选项节点
+    background: #bbdefb; // 蓝色 - 视频节点
     border-bottom: 1px solid #e9ecef;
     display: flex;
     justify-content: space-between;
@@ -74,8 +67,6 @@
     cursor: move;
     user-select: none;
     touch-action: none;
-    position: relative;
-    z-index: 1; // 确保 header 在 content 上方
     
     &:active {
         cursor: grabbing;
@@ -88,18 +79,6 @@
     gap: 8px;
 }
 
-.titleRow {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.nodeId {
-    font-size: 13px;
-    color: #666;
-    font-weight: 400;
-}
-
 .title {
     margin: 0;
     font-size: 16px;
@@ -107,29 +86,10 @@
     color: #333;
 }
 
-.expandButton {
-    padding: 2px 6px;
-    border: 1px solid #d0d0d0;
-    background: #f5f5f5;
-    border-radius: 3px;
-    cursor: pointer;
-    font-size: 12px;
+.nodeId {
+    font-size: 13px;
     color: #666;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 20px;
-    height: 20px;
-    
-    &:hover {
-        background: #e0e0e0;
-        border-color: #999;
-    }
-    
-    &:active {
-        transform: scale(0.95);
-    }
+    font-weight: 400;
 }
 
 .checkboxLabel {
@@ -143,9 +103,6 @@
     
     input[type="checkbox"] {
         cursor: pointer;
-        width: 16px;
-        height: 16px;
-        accent-color: #1890ff;
     }
     
     span {
@@ -153,14 +110,10 @@
     }
 }
 
-.inputCheckbox {
-    accent-color: #1890ff !important;
-}
-
 .tabs {
     display: flex;
-    border-bottom: 1px solid #d9f2dc;
-    background: #e8f5e9;
+    border-bottom: 1px solid #e0ecfb;
+    background: #e3f2fd;
     align-items: center;
     min-height: 40px;
 }
@@ -170,7 +123,7 @@
     padding: 8px 12px;
     border: none;
     background: transparent;
-    color: #3b6b44;
+    color: #446b9c;
     font-size: 13px;
     cursor: default;
     transition: color 0.2s ease;
@@ -181,7 +134,7 @@
     min-width: fit-content;
     
     &.active {
-        color: #1f5a2a;
+        color: #184c8c;
         font-weight: 600;
     }
 }
@@ -204,16 +157,16 @@
     overflow: hidden;
 }
 
-.optionTextLabel {
+.nodeNameLabel {
     font-size: 13px;
-    color: #3b6b44;
+    color: #446b9c;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 100%;
 }
 
-.optionTextInput {
+.nodeNameInput {
     flex: 1;
     min-width: 0;
     max-width: 100%;
@@ -287,7 +240,7 @@
     font-weight: 600;
     color: #333;
     padding-bottom: 8px;
-    border-bottom: 2px solid #1890ff;
+    border-bottom: 1px solid #e9ecef;
 }
 
 .field {
@@ -336,31 +289,58 @@
     }
 }
 
-/* 叠加图片选项区 - 绿色左边框 */
-.overlaySection {
-    border-left: 3px solid #52c41a;
-    padding-left: 12px;
-    background: rgba(82, 196, 26, 0.02);
-    border-radius: 0 4px 4px 0;
+.readonly {
+    background: #f5f5f5 !important;
+    color: #999 !important;
+    cursor: not-allowed;
 }
 
-.hint {
-    margin-top: 4px;
-    font-size: 11px;
-    color: #999;
-    font-style: italic;
+.fileInput {
+    display: flex;
+    gap: 8px;
+    
+    input {
+        flex: 1;
+    }
+}
+
+.iconBtn {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    background: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    font-size: 18px;
+    
+    &:hover {
+        background: #f8f9fa;
+        border-color: #40a9ff;
+    }
+    
+    &:active {
+        background: #e9ecef;
+    }
+}
+
+.folderIcon {
+    filter: hue-rotate(30deg) saturate(1.2);
 }
 
 .checkboxGroup {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    margin-bottom: 10px;
     
     label {
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: 8px;
         font-size: 13px;
         color: #555;
         cursor: pointer;
@@ -375,67 +355,46 @@
     }
 }
 
-.inlineGroup {
+.inlineField {
     display: flex;
-    gap: 16px;
-    flex-wrap: wrap;
-}
-
-.fileInput {
-    display: flex;
+    align-items: center;
     gap: 8px;
     
-    input {
-        flex: 1;
+    label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+        white-space: nowrap;
     }
 }
 
-.iconBtn {
-    padding: 6px 12px;
-    border: 1px solid #d9d9d9;
-    background: white;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: all 0.2s;
-    
-    &:hover {
-        border-color: #1890ff;
-        color: #1890ff;
-    }
+.smallInput {
+    width: 80px !important;
+    padding: 6px 10px !important;
 }
 
-.addButton {
+.addBtn {
     width: 100%;
-    padding: 8px 16px;
-    border: 1px dashed #d9d9d9;
-    background: white;
+    padding: 10px;
+    margin-bottom: 12px;
+    border: 1px solid #d9d9d9;
     border-radius: 4px;
-    cursor: pointer;
+    background: #fff;
+    color: #333;
     font-size: 13px;
-    color: #666;
+    cursor: pointer;
     transition: all 0.2s;
-    margin-bottom: 8px;
     
     &:hover {
-        border-color: #1890ff;
-        color: #1890ff;
-        background: rgba(24, 144, 255, 0.02);
+        background: #f8f9fa;
+        border-color: #40a9ff;
+        color: #40a9ff;
     }
-}
-
-.itemList {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.listItem {
-    padding: 8px 12px;
-    background: #f5f5f5;
-    border-radius: 4px;
-    font-size: 12px;
-    color: #666;
+    
+    &:active {
+        background: #e9ecef;
+    }
 }
 
 /* React Flow Handle 样式定制 */
@@ -448,9 +407,9 @@
     opacity: 1;
 }
 
-/* 圆框样式的 Handle */
+/* 端口圆框样式 */
 .portHandle {
-    box-shadow: 0 1px 3px rgba(82, 196, 26, 0.35);
+    box-shadow: 0 1px 3px rgba(24, 114, 224, 0.35);
     transition: transform 0.2s ease;
     pointer-events: auto;
     opacity: 1 !important;
@@ -494,11 +453,11 @@
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    padding: 2px 0;
+    padding: 4px 0;
     margin-top: 4px;
     justify-content: flex-start;
-    width: 400px; // 与卡片宽度一致
-    max-width: 400px; // 确保不超过卡片宽度
+    width: 360px; // 与卡片宽度一致
+    max-width: 360px; // 确保不超过卡片宽度
 }
 
 /* 单个条件标签 */
@@ -516,16 +475,22 @@
     box-sizing: border-box;
 }
 
+.conditionTag.startTag {
+    background: #fff9c4;
+    color: #a07606;
+    border: 1px solid #fdd835;
+}
+
 /* 效果标签容器 - 在条件标签下方 */
 .effectTags {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    padding: 2px 0;
-    margin-top: 4px;
+    padding: 4px 0;
+    margin-top: 0px;
     justify-content: flex-start;
-    width: 400px; // 与卡片宽度一致
-    max-width: 400px; // 确保不超过卡片宽度
+    width: 360px; // 与卡片宽度一致
+    max-width: 360px; // 确保不超过卡片宽度
 }
 
 /* 单个效果标签 */
@@ -543,158 +508,18 @@
     box-sizing: border-box;
 }
 
-/* 选项标签容器 - 在效果标签下方 */
-.optionTags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    padding: 2px 0;
-    margin-top: 4px;
-    justify-content: flex-start;
-    width: 400px; // 与卡片宽度一致
-    max-width: 400px; // 确保不超过卡片宽度
-}
-
-/* 单个选项标签 */
-.optionTag {
-    display: inline-block;
-    padding: 4px 12px;
-    background: #fff;
-    border: 1px solid #fa8c16;
-    border-radius: 12px;
-    font-size: 12px;
-    color: #d46b08;
-    white-space: nowrap;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    max-width: 100%; // 确保单个标签不会超出容器
-    box-sizing: border-box;
-}
-
-/* 复杂表达式选项样式 */
-.expressionOption {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 12px;
-    padding: 8px 12px;
-    background: #f8f9fa;
-    border-radius: 6px;
-}
-
-.hint {
-    font-size: 12px;
-    color: #999;
-    font-style: italic;
-}
-
-/* 条件列表样式 */
-.conditionList {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-top: 12px;
-}
-
-.conditionItem {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 12px 16px;
-    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-    border: 1px solid #e8e8e8;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    transition: all 0.2s ease;
-    
-    &:hover {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        border-color: #d9d9d9;
-    }
-}
-
-.conditionRow {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.conditionInput {
-    width: 100px;
-    padding: 8px 12px;
-    border: 1px solid #d9d9d9;
-    border-radius: 6px;
-    font-size: 14px;
-    transition: all 0.2s ease;
-    background: #fff;
-    
-    &:focus {
-        outline: none;
-        border-color: #1890ff;
-        box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
-    }
-    
-    &:hover {
-        border-color: #40a9ff;
-    }
-}
-
-.conditionSelect {
-    width: 120px;
-    padding: 8px 12px;
-    border: 1px solid #d9d9d9;
-    border-radius: 6px;
-    font-size: 12px;
-    background: #fff;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    
-    &:focus {
-        outline: none;
-        border-color: #1890ff;
-        box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
-    }
-    
-    &:hover {
-        border-color: #40a9ff;
-    }
-}
-
-.deleteConditionButton {
-    width: 100%;
-    padding: 8px 16px;
-    background: #fff;
-    border: 1px solid #ff4d4f;
-    border-radius: 6px;
-    color: #ff4d4f;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(255, 77, 79, 0.1);
-    
-    &:hover {
-        background: #ff4d4f;
-        color: white;
-        box-shadow: 0 4px 8px rgba(255, 77, 79, 0.3);
-        transform: translateY(-1px);
-    }
-    
-    &:active {
-        transform: scale(0.95);
-    }
-}
-
-/* 效果列表样式 */
+/* 条件/效果列表样式 */
 .effectList {
+    margin-top: 12px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    margin-top: 12px;
+    gap: 8px;
 }
 
 .effectItem {
     display: flex;
-    flex-direction: column;
-    gap: 10px;
+    align-items: center;
+    gap: 12px;
     padding: 12px 16px;
     background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
     border: 1px solid #e8e8e8;
@@ -708,14 +533,45 @@
     }
 }
 
-.effectRow {
+.conditionItem {
     display: flex;
     align-items: center;
     gap: 12px;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: all 0.2s ease;
+    
+    &:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border-color: #d9d9d9;
+    }
+}
+
+.conditionInput {
+    width: 150px;
+    padding: 8px 12px;
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    background: #fff;
+    
+    &:focus {
+        outline: none;
+        border-color: #1890ff;
+        box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+    }
+    
+    &:hover {
+        border-color: #40a9ff;
+    }
 }
 
 .effectInput {
-    width: 100px;
+    width: 80px;
     padding: 8px 12px;
     border: 1px solid #d9d9d9;
     border-radius: 6px;
@@ -735,7 +591,6 @@
 }
 
 .effectSelect {
-    width: 120px;
     padding: 8px 12px;
     border: 1px solid #d9d9d9;
     border-radius: 6px;
@@ -743,6 +598,7 @@
     background: #fff;
     cursor: pointer;
     transition: all 0.2s ease;
+    min-width: 120px;
     
     &:focus {
         outline: none;
@@ -755,15 +611,19 @@
     }
 }
 
-.deleteEffectButton {
-    width: 100%;
-    padding: 8px 16px;
-    background: #fff;
+.removeButton {
+    width: 28px;
+    height: 28px;
     border: 1px solid #ff4d4f;
-    border-radius: 6px;
+    background: #fff;
     color: #ff4d4f;
-    font-size: 14px;
+    border-radius: 6px;
     cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: all 0.2s ease;
     box-shadow: 0 2px 4px rgba(255, 77, 79, 0.1);
     
@@ -779,39 +639,117 @@
     }
 }
 
-/* 图片预览容器 - 完全照搬视频节点的样式 */
-.imagePreviewContainer {
+// 禁用状态样式
+input:disabled,
+select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #f5f5f5;
+}
+
+:global(.react-flow__node.selected) {
+    .card {
+        border-color: #1890ff;
+        box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+    }
+}
+
+/* 字幕列表样式 */
+.subtitleList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.subtitleItemWrapper {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: all 0.2s ease;
+    
+    &:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border-color: #d9d9d9;
+    }
+}
+
+.subtitleItemHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.deleteSubtitleBtn {
+    padding: 6px 16px;
+    background: #fff;
+    border: 1px solid #ff4d4f;
+    border-radius: 6px;
+    color: #ff4d4f;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+        background: #ff4d4f;
+        color: white;
+    }
+}
+
+.subtitleDetail {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #e8e8e8;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.subtitleTextarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+    font-size: 14px;
+    resize: vertical;
+    font-family: inherit;
+    
+    &:focus {
+        outline: none;
+        border-color: #1890ff;
+        box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+    }
+}
+
+/* 视频预览容器 - 顶部位置 */
+.videoPreviewContainer {
     width: 100%;
     overflow: hidden;
-    margin-top: 12px;
+    border-bottom: 1px solid #e0e0e0;
     cursor: pointer;
     transition: all 0.2s ease;
     flex-shrink: 0;
-    background-color: #f5f5f5;
+    background-color: #000;
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 150px;
-    max-height: 300px;
-    border-radius: 4px;
-    padding: 8px;
-    box-sizing: border-box;
     
     &:hover {
         opacity: 0.95;
-        background-color: #f0f0f0;
     }
 }
 
-.imagePreviewImage {
+.videoPreviewImage {
     width: 100%;
     height: auto;
     display: block;
-    max-height: 300px;
-    max-width: 100%;
+    max-height: 200px;
     object-fit: contain;
-    background-color: transparent;
+    background-color: #000;
     transition: opacity 0.2s ease;
     
     &:hover {
@@ -819,20 +757,132 @@
     }
 }
 
-.cardHasImage {
-    max-height: 600px;
+.videoPreviewVideo {
+    width: 100%;
+    max-height: 220px;
+    display: block;
+    object-fit: cover;
+    background-color: #000;
+    border: none;
 }
 
-.imagePreviewWrapper {
+.videoPreviewPlaceholder {
+    position: absolute;
+    inset: auto 12px 12px 12px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    pointer-events: none;
+    text-align: center;
+}
+
+/* 编辑按钮样式 */
+.editButton {
     width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 8px;
-    background-color: #f5f5f5;
+    background-color: #1890ff;
+    color: white;
+    border: none;
     border-radius: 4px;
-    min-height: 150px;
-    box-sizing: border-box;
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 12px;
+    font-weight: 500;
+
+    &:hover {
+        background-color: #40a9ff;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(24, 144, 255, 0.3);
+    }
+
+    &:active {
+        transform: translateY(0);
+    }
+}
+
+/* 模态框内容区域样式 */
+.modalContent {
+    padding: 8px;
+    
+    .section {
+        margin-bottom: 20px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #f0f0f0;
+
+        &:last-child {
+            border-bottom: none;
+        }
+    }
+
+    .sectionTitle {
+        font-size: 15px;
+        font-weight: 600;
+        color: #333;
+        margin: 0 0 12px 0;
+    }
+
+    .field {
+        margin-bottom: 12px;
+
+        label {
+            display: block;
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 6px 10px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 13px;
+
+            &:focus {
+                border-color: #1890ff;
+                outline: none;
+                box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+            }
+
+            &:disabled {
+                background-color: #f5f5f5;
+                cursor: not-allowed;
+            }
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+    }
+
+    .checkboxLabel {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+        cursor: pointer;
+
+        input[type="checkbox"] {
+            width: auto;
+            cursor: pointer;
+        }
+
+        span {
+            font-size: 13px;
+            color: #333;
+        }
+    }
+
+    .checkboxGroup {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
 }
 
 /* 节点包装器 */
@@ -863,12 +913,18 @@
     display: inline-block;
     padding: 4px 10px;
     background: #fff;
-    border: 1px solid #ffc107;
+    border: 1px solid #52c41a;
     border-radius: 12px;
     font-size: 12px;
-    color: #856404;
+    color: #389e0d;
     white-space: nowrap;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.startTag {
+    background: #f6ffed;
+    border-color: #52c41a;
+    color: #389e0d;
 }
 
 /* 效果标签容器 */
@@ -890,7 +946,7 @@
 
 /* 当同时有条件标签时，效果标签需要向下偏移 */
 .conditionTags + .effectTags {
-    top: calc(100% + 40px); /* 假设条件标签高度约为40px */
+    top: calc(100% + 40px);
 }
 
 /* 效果标签 */
@@ -898,10 +954,174 @@
     display: inline-block;
     padding: 4px 10px;
     background: #fff;
-    border: 1px solid #17a2b8;
+    border: 1px solid #ff85c0;
     border-radius: 12px;
     font-size: 12px;
-    color: #0c5460;
+    color: #c41d7f;
     white-space: nowrap;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* 每秒变量变化标签容器 */
+.rateEffectTags {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px 12px;
+    background: transparent;
+    border: none;
+    width: 360px;
+    max-width: 360px;
+    z-index: 1;
+    box-sizing: border-box;
+}
+
+/* 当同时有条件标签时，每秒变量变化标签需要向下偏移 */
+.conditionTags + .rateEffectTags {
+    top: calc(100% + 40px);
+}
+
+/* 当同时有效果标签时，每秒变量变化标签需要向下偏移 */
+.effectTags + .rateEffectTags {
+    top: calc(100% + 40px);
+}
+
+/* 当同时有条件标签和效果标签时，每秒变量变化标签需要向下偏移 */
+.conditionTags + .effectTags + .rateEffectTags {
+    top: calc(100% + 80px);
+}
+
+/* 每秒变量变化标签 */
+.rateEffectTag {
+    display: inline-block;
+    padding: 4px 10px;
+    background: #fff;
+    border: 1px solid #722ed1;
+    border-radius: 12px;
+    font-size: 12px;
+    color: #531dab;
+    white-space: nowrap;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* 其他选项标签容器 */
+.optionTags {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px 12px;
+    background: transparent;
+    border: none;
+    width: 360px;
+    max-width: 360px;
+    z-index: 1;
+    box-sizing: border-box;
+}
+
+/* 当有条件标签时，选项标签需要向下偏移 */
+.conditionTags + .optionTags {
+    top: calc(100% + 40px);
+}
+
+/* 当有效果标签时，选项标签需要向下偏移 */
+.effectTags + .optionTags {
+    top: calc(100% + 40px);
+}
+
+/* 当同时有条件标签和效果标签时，选项标签需要向下偏移 */
+.conditionTags + .effectTags + .optionTags {
+    top: calc(100% + 80px);
+}
+
+/* 当有每秒变量变化标签时，选项标签需要向下偏移 */
+.rateEffectTags + .optionTags {
+    top: calc(100% + 40px);
+}
+
+/* 当同时有条件标签和每秒变量变化标签时，选项标签需要向下偏移 */
+.conditionTags + .rateEffectTags + .optionTags {
+    top: calc(100% + 80px);
+}
+
+/* 当同时有效果标签和每秒变量变化标签时，选项标签需要向下偏移 */
+.effectTags + .rateEffectTags + .optionTags {
+    top: calc(100% + 80px);
+}
+
+/* 当同时有条件标签、效果标签和每秒变量变化标签时，选项标签需要向下偏移 */
+.conditionTags + .effectTags + .rateEffectTags + .optionTags {
+    top: calc(100% + 120px);
+}
+
+/* 选项标签基础样式 */
+.optionTag {
+    display: inline-block;
+    padding: 4px 10px;
+    background: #fff;
+    border-radius: 12px;
+    font-size: 12px;
+    white-space: nowrap;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* 终点节点标签 */
+.endpointTag {
+    background: #f0f5ff;
+    border: 1px solid #722ed1;
+    color: #531dab;
+}
+
+/* 死亡点标签 */
+.deathTag {
+    background: #fff1f0;
+    border: 1px solid #ff4d4f;
+    color: #cf1322;
+}
+
+/* 黑屏视频节点标签 */
+.blackScreenTag {
+    background: #fafafa;
+    border: 1px solid #595959;
+    color: #262626;
+}
+
+/* 回忆节点标签 */
+.memoryTag {
+    background: #fff0f6;
+    border: 1px solid #ff85c0;
+    color: #c41d7f;
+}
+
+/* 对话节点标签 */
+.dialogueTag {
+    background: #e6f7ff;
+    border: 1px solid #13c2c2;
+    color: #08979c;
+}
+
+/* 跳转点标签 */
+.jumpTag {
+    background: #fff7e6;
+    border: 1px solid #fa8c16;
+    color: #d46b08;
+}
+
+/* 带货功能标签 */
+.commerceTag {
+    background: #fff7e6;
+    border: 1px solid #fa8c16;
+    color: #d46b08;
+}
+
+/* 成就标签 */
+.achievementTag {
+    background: #f6ffed;
+    border: 1px solid #52c41a;
+    color: #389e0d;
 }

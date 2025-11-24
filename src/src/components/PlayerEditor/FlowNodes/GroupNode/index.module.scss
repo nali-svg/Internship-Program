@@ -1,0 +1,245 @@
+.groupNode {
+  background: rgba(240, 240, 250, 0.3);
+  border: 2px solid rgba(100, 100, 120, 0.8);
+  border-radius: 8px;
+  position: relative;
+  overflow: visible;
+  user-select: none;
+  pointer-events: auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  cursor: move;
+  isolation: isolate;
+  
+  &.selected {
+    border-color: rgba(24, 144, 255, 0.9);
+    box-shadow: 0 4px 12px rgba(24, 144, 255, 0.3);
+    background: rgba(240, 248, 255, 0.4);
+  }
+  
+  &.titleInside {
+    .titleContainer {
+      z-index: 99999;
+    }
+  }
+}
+
+// 当标题显示在内部时，确保子节点的 z-index 低于标题
+.groupNode.titleInside {
+  // 确保标题容器在所有内容之上，使用 transform 创建新的层叠上下文
+  .titleContainer {
+    z-index: 999999 !important;
+    transform: translateZ(0);
+    will-change: transform;
+  }
+}
+
+.resizeHandle {
+  position: absolute;
+  background: rgba(24, 144, 255, 0.8);
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  width: 12px;
+  height: 12px;
+  z-index: 10000;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  pointer-events: auto;
+  touch-action: none;
+  user-select: none;
+  
+  &:hover {
+    background: rgba(24, 144, 255, 1);
+    transform: scale(1.2);
+    box-shadow: 0 0 8px rgba(24, 144, 255, 0.6);
+  }
+  
+  &:active {
+    transform: scale(1.1);
+  }
+  
+  // 四个角的控制点
+  &.resizeHandleTopLeft {
+    top: -6px;
+    left: -6px;
+    cursor: nwse-resize;
+  }
+  
+  &.resizeHandleTopRight {
+    top: -6px;
+    right: -6px;
+    cursor: nesw-resize;
+  }
+  
+  &.resizeHandleBottomLeft {
+    bottom: -6px;
+    left: -6px;
+    cursor: nesw-resize;
+  }
+  
+  &.resizeHandleBottomRight {
+    bottom: -6px;
+    right: -6px;
+    cursor: nwse-resize;
+  }
+  
+  // 四条边的控制点
+  &.resizeHandleTop {
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    cursor: ns-resize;
+  }
+  
+  &.resizeHandleRight {
+    right: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: ew-resize;
+  }
+  
+  &.resizeHandleBottom {
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    cursor: ns-resize;
+  }
+  
+  &.resizeHandleLeft {
+    left: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: ew-resize;
+  }
+}
+
+.titleContainer {
+  position: absolute;
+  top: -45px;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  z-index: 10;
+  transition: all 0.3s ease;
+  // 确保默认状态下不会影响子节点
+  bottom: auto;
+  width: auto;
+  height: auto;
+  transform: none;
+  will-change: auto;
+  
+  &.titleContainerInside {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 999999 !important;
+    position: absolute;
+    pointer-events: none;
+    isolation: isolate;
+    // 确保标题容器在所有内容之上，使用 transform 创建新的层叠上下文
+    transform: translateZ(0);
+    will-change: transform;
+    
+    .titleText,
+    .titleInput {
+      pointer-events: auto;
+      position: relative;
+      z-index: 999999 !important;
+      transform: translateZ(0);
+    }
+  }
+}
+
+.titleText {
+  padding: 10px 20px;
+  background: rgba(24, 144, 255, 0.9);
+  color: #fff;
+  border-radius: 6px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: text;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  // 确保默认状态下不会影响子节点
+  width: auto;
+  height: auto;
+  position: relative;
+  z-index: auto;
+  transform: none;
+  
+  &:hover {
+    background: rgba(24, 144, 255, 1);
+  }
+  
+  &.titleTextInside {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    padding: 0;
+    white-space: normal;
+    text-align: center;
+    background: rgba(128, 128, 128, 0.3);
+    line-height: 1.1;
+    word-break: break-word;
+    color: #333;
+    font-weight: 700;
+    overflow: visible;
+    text-overflow: clip;
+    position: relative;
+    z-index: 999999 !important;
+    transform: translateZ(0);
+  }
+}
+
+.titleInput {
+  padding: 10px 20px;
+  background: #fff;
+  color: #333;
+  border: 2px solid rgba(24, 144, 255, 0.9);
+  border-radius: 6px;
+  font-size: 18px;
+  font-weight: 600;
+  outline: none;
+  min-width: 120px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  // 确保默认状态下不会影响子节点
+  width: auto;
+  height: auto;
+  position: relative;
+  z-index: auto;
+  transform: none;
+  
+  &:focus {
+    border-color: rgba(24, 144, 255, 1);
+    box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.2);
+  }
+  
+  &.titleInputInside {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    padding: 0;
+    min-width: 0;
+    border-width: 3px;
+    background: rgba(200, 200, 200, 0.5);
+    text-align: center;
+    word-break: break-word;
+    font-weight: 700;
+    z-index: 999999 !important;
+    position: relative;
+    transform: translateZ(0);
+  }
+}
+
